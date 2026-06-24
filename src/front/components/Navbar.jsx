@@ -12,7 +12,7 @@ export const Navbar = () => {
           <a href="#">Random Pick</a>
         </nav>
 
-        <a href="#" className="user-link">Iniciar sesión</a>
+        <a href="/login" className="user-link">Iniciar sesión</a>
       </div>
     </header>
   );

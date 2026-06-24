@@ -1,117 +1,13 @@
+@import "./Login.css";
+@import "./Navbar.css";
+@import "./home.css";
+
+
+
 body {
   margin: 0;
+  background: #102040;
+  color: white;
   font-family: Arial, sans-serif;
-  background: #192746;
-  color: white;
 }
 
-.hero {
-  position: relative;
-  min-height: 420px;
-  padding-top: 64px;
-
-  background-image:
-    linear-gradient(
-      180deg,
-      rgba(8, 18, 38, 0.92) 0%,
-      rgba(8, 18, 38, 0.45) 32%,
-      rgba(8, 18, 38, 0.65) 68%,
-      #192746 100%
-    ),
-    url("assets/img/revolver-img.jpg");
-
-  background-size: cover;
-  background-position: center;
-}
-
-.navbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  height: 64px;
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: transparent;
-}
-
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-}
-
-.navbar nav {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-}
-
-.navbar a {
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-
-
-.logo {
-  font-size: 28px;
-  font-weight: 800;
-}
-
-.navbar nav {
-  display: flex;
-  gap: 28px;
-}
-
-.navbar a {
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.user-link {
-  background: rgba(12, 22, 43, 0.65);
-  padding: 8px 14px;
-  border-radius: 999px;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 720px;
-  margin: 72px auto 0;
-  text-align: center;
-  padding: 0 24px;
-}
-
-.hero-content h1 {
-  margin: 0 0 12px;
-  font-size: 52px;
-  line-height: 1;
-}
-
-.hero-content p {
-  margin: 0 auto 18px;
-  max-width: 560px;
-  font-size: 20px;
-  line-height: 1.35;
-}
-
-.hero-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #98BCFF;
-  color: #112142;
-  text-decoration: none;
-  font-weight: 800;
-  padding: 10px 32px;
-  border-radius: 999px;
-}
