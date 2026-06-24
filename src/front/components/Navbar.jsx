@@ -1,19 +1,19 @@
-import { Link } from "react-router-dom";
+import React from "react";
 
 export const Navbar = () => {
+  return (
+    <header className="navbar">
+      <h1 className="logo">Audia</h1>
 
-	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
-				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>
-				</div>
-			</div>
-		</nav>
-	);
+      <div className="navbar-right">
+        <nav>
+          <a href="#">Últimos lanzamientos</a>
+          <a href="#">Géneros</a>
+          <a href="#">Random Pick</a>
+        </nav>
+
+        <a href="#" className="user-link">Iniciar sesión</a>
+      </div>
+    </header>
+  );
 };
