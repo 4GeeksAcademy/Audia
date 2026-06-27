@@ -54,6 +54,44 @@
 import React from "react";
 
 export const Home = () => {
+  const albums = [
+    {
+      title: "BRAT",
+      artist: "Charli XCX",
+      year: "2024",
+      image: "/albums/brat.jpg",
+    },
+    {
+      title: "Hit Me Hard and Soft",
+      artist: "Billie Eilish",
+      year: "2024",
+      image: "/albums/hit-me-hard-and-soft.png",
+    },
+    {
+      title: "Cowboy Carter",
+      artist: "Beyoncé",
+      year: "2024",
+      image: "/albums/cowboy-carter.jpg",
+    },
+    {
+      title: "The Tortured Poets Department",
+      artist: "Taylor Swift",
+      year: "2024",
+      image: "/albums/tortured-poets.jpg",
+    },
+    {
+      title: "Charm",
+      artist: "Clairo",
+      year: "2024",
+      image: "/albums/charm.jpg",
+    },
+    {
+      title: "Imaginal Disk",
+      artist: "Magdalena Bay",
+      year: "2024",
+      image: "/albums/imaginal-disk.jpg",
+    },
+  ];
   return (
     <main>
       <section className="hero">
@@ -63,6 +101,31 @@ export const Home = () => {
             Celebra el aniversario de este clásico leyendo las reseñas de los usuarios
           </p>
           <a href="#" className="hero-button">Ir a las reseñas</a>
+        </div>
+      </section>
+
+      <section className="album-section">
+        <div className="section-header">
+          <div>
+            <p className="section-eyebrow">Explora la comunidad</p>
+            <h2>Últimos lanzamientos</h2>
+          </div>
+
+          <a href="#">Ver todos</a>
+        </div>
+
+        <div className="album-carousel">
+          {albums.map((album) => (
+            <a href="#" className="album-card" key={album.title}>
+              <img src={album.image} alt={`Portada de ${album.title}`} />
+
+              <div className="album-card-info">
+                <h3>{album.title}</h3>
+                <p>{album.artist}</p>
+                <span>{album.year}</span>
+              </div>
+            </a>
+          ))}
         </div>
       </section>
     </main>

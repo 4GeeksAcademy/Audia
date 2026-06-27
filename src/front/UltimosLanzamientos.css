@@ -1,0 +1,103 @@
+.album-section {
+  background: #102040;
+  color: white;
+  padding: 56px 32px 72px;
+}
+
+.section-header {
+  max-width: 1180px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.section-eyebrow {
+  margin: 0 0 6px;
+  color: #9db5ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.section-header a {
+  color: #9db5ff;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.album-carousel {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 180px;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  scroll-snap-type: x mandatory;
+}
+
+.album-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.album-carousel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.album-carousel::-webkit-scrollbar-thumb {
+  background: #9db5ff;
+  border-radius: 999px;
+}
+
+.album-card {
+  scroll-snap-align: start;
+  color: white;
+  text-decoration: none;
+}
+
+.album-card img {
+  width: 180px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+.album-card:hover img {
+  transform: translateY(-4px);
+  filter: brightness(1.08);
+}
+
+.album-card-info {
+  padding-top: 10px;
+}
+
+.album-card h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.album-card p {
+  margin: 0;
+  color: #c7d4f8;
+  font-size: 13px;
+}
+
+.album-card span {
+  display: inline-block;
+  margin-top: 5px;
+  color: #9db5ff;
+  font-size: 13px;
+  font-weight: 700;
+}
