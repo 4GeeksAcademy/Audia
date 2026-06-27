@@ -55,42 +55,54 @@ import React from "react";
 
 export const Home = () => {
   const albums = [
-    {
-      title: "BRAT",
-      artist: "Charli XCX",
-      year: "2024",
-      image: "/albums/brat.jpg",
-    },
-    {
-      title: "Hit Me Hard and Soft",
-      artist: "Billie Eilish",
-      year: "2024",
-      image: "/albums/hit-me-hard-and-soft.png",
-    },
-    {
-      title: "Cowboy Carter",
-      artist: "Beyoncé",
-      year: "2024",
-      image: "/albums/cowboy-carter.jpg",
-    },
-    {
-      title: "The Tortured Poets Department",
-      artist: "Taylor Swift",
-      year: "2024",
-      image: "/albums/tortured-poets.jpg",
-    },
-    {
-      title: "Charm",
-      artist: "Clairo",
-      year: "2024",
-      image: "/albums/charm.jpg",
-    },
-    {
-      title: "Imaginal Disk",
-      artist: "Magdalena Bay",
-      year: "2024",
-      image: "/albums/imaginal-disk.jpg",
-    },
+  {
+    title: "With Heaven on Top",
+    artist: "Zach Bryan",
+    year: "2026",
+    image: "/albums/with-heaven-on-top.jpg",
+  },
+  {
+    title: "Don't Be Dumb",
+    artist: "A$AP Rocky",
+    year: "2026",
+    image: "/albums/dont-be-dumb.jpg",
+  },
+  {
+    title: "Octane",
+    artist: "Don Toliver",
+    year: "2026",
+    image: "/albums/octane.png",
+  },
+  {
+    title: "The Fall-Off",
+    artist: "J. Cole",
+    year: "2026",
+    image: "/albums/the-fall-off.jpg",
+  },
+  {
+    title: "Cloud 9",
+    artist: "Megan Moroney",
+    year: "2026",
+    image: "/albums/cloud-9.jpg",
+  },
+  {
+    title: "Victory",
+    artist: "Madeon",
+    year: "2026",
+    image: "/albums/victory.jpg",
+  },
+  {
+    title: "The Ground Above",
+    artist: "Beth Orton",
+    year: "2026",
+    image: "/albums/the-ground-above.jpg",
+  },
+  {
+    title: "Your Day Will Come",
+    artist: "Chanel Beads",
+    year: "2026",
+    image: "/albums/your-day-will-come.jpg",
+  },
   ];
   return (
     <main>
@@ -116,7 +128,7 @@ export const Home = () => {
 
         <div className="album-carousel">
           {albums.map((album) => (
-            <a href="#" className="album-card" key={album.title}>
+            <a href={`/album/${album.id}`} className="album-card" key={album.title}>
               <img src={album.image} alt={`Portada de ${album.title}`} />
 
               <div className="album-card-info">
