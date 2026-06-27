@@ -1,4 +1,4 @@
-.login-page {
+.auth-page {
   min-height: calc(100vh - 64px);
   background: #192746;
   display: flex;
@@ -7,7 +7,7 @@
   padding: 48px 24px;
 }
 
-.login-card {
+.auth-card {
   width: 100%;
   max-width: 420px;
   background: #ffffff;
@@ -17,40 +17,41 @@
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
 }
 
-.login-card h2 {
+.auth-card h2 {
   margin: 0 0 10px;
   font-size: 32px;
 }
 
-.login-card p {
+.auth-card p {
   margin: 0;
   color: #192746;
   line-height: 1.5;
 }
 
-.login-form {
+.auth-form {
   margin-top: 28px;
   display: grid;
   gap: 18px;
 }
 
-.login-form label {
+.auth-form label {
   display: grid;
   gap: 8px;
   font-size: 14px;
   font-weight: 700;
 }
 
-.login-form input {
+.auth-form input {
   height: 44px;
   border: none;
   border-radius: 6px;
   padding: 0 14px;
   background: #192746;
+  color: #ffffff;
   font-size: 15px;
 }
 
-.login-form button {
+.auth-form button {
   margin-top: 8px;
   height: 46px;
   border: none;
@@ -61,13 +62,13 @@
   cursor: pointer;
 }
 
-.login-register {
+.auth-switch {
   margin-top: 22px !important;
   text-align: center;
   font-size: 14px;
 }
 
-.login-register a {
+.auth-switch a {
   color: #98BCFF;
   font-weight: 800;
   text-decoration: none;

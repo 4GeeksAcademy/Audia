@@ -2,12 +2,12 @@ import React from "react";
 
 export const Login = () => {
   return (
-    <main className="login-page">
-      <section className="login-card">
+    <main className="auth-page">
+      <section className="auth-card">
         <h2>Iniciar sesión</h2>
         <p>Entra a tu cuenta para guardar reseñas, listas y álbumes favoritos.</p>
 
-        <form className="login-form">
+        <form className="auth-form">
           <label>
             Correo electrónico
             <input type="email" placeholder="tu@email.com" />
@@ -21,8 +21,8 @@ export const Login = () => {
           <button type="submit">Entrar</button>
         </form>
 
-        <p className="login-register">
-          ¿No tienes cuenta? <a href="#">Crear cuenta</a>
+        <p className="auth-switch">
+          ¿No tienes cuenta? <a href="/Register">Crear cuenta</a>
         </p>
       </section>
     </main>
