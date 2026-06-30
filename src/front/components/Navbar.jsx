@@ -12,8 +12,8 @@ export const Navbar = () => {
           <a href="#">Random Pick</a>
         </nav>
 
-        <a href="/login" className="user-link">Iniciar sesión</a>
-        <a href="/" className="user-link"><img src="" alt="" /></a>
+        <a href="/Login" className="user-link">Iniciar sesión</a>
+        <a href="/Profile" className="user-link">Perfil</a>
       </div>
     </header>
   );
