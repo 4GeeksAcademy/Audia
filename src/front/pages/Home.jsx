@@ -118,7 +118,7 @@ export const Home = () => {
 
       <section className="album-section">
         <div className="section-header">
-          <div>
+          <div id = "ulti">
             <p className="section-eyebrow">Explora la comunidad</p>
             <h2>Últimos lanzamientos</h2>
           </div>
