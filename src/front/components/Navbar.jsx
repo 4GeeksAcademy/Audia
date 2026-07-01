@@ -7,7 +7,7 @@ export const Navbar = () => {
 
       <div className="navbar-right">
         <nav>
-          <a href="#ulti">Últimos lanzamientos</a>
+          <a href="/ultimos-lanzamientos">Últimos lanzamientos</a>
           <a href="#">Géneros</a>
           <a href="#">Random Pick</a>
         </nav>
