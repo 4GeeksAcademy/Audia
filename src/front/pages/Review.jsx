@@ -7,10 +7,10 @@ const Review = () => {
         <div className="container py-5">
             <div className="row g-4 align-items-start">
                 <div className="col-lg-7">
-                    <div className="card shadow-sm border-0">
-                        <div className="card-body p-4">
+                    <div className="shadow-sm border-0" style={{ backgroundColor: "transparent" }}>
+                        <div className="p-4">
                             <h2 className="h3 mb-2">Escribir una reseña</h2>
-                            <p className="text-muted mb-4">
+                            <p className="text-white mb-4">
                                 Comparte tu opinión sobre este álbum y ayuda a otros oyentes.
                             </p>
 
@@ -24,7 +24,7 @@ const Review = () => {
                                             className={`btn btn-sm ${rating >= star ? "btn-primary" : "btn-outline-primary"}`}
                                             onClick={() => setRating(star)}
                                             aria-label={`Calificar con ${star} estrellas`}
-                                            style={{ minWidth: "42px" }}
+                                            style={{ minWidth: "42px", backgroundColor: rating >= star ? "#0d3b66" : "transparent", borderColor: "#0d3b66", color: rating >= star ? "#fff" : "#0d3b66" }}
                                         >
                                             <i className={`fa${rating >= star ? "s" : "r"} fa-star`}></i>
                                         </button>
@@ -41,10 +41,11 @@ const Review = () => {
                                     className="form-control"
                                     rows="8"
                                     placeholder="Escribe aquí tu opinión sobre el álbum..."
+                                    style={{ backgroundColor: "#98BCFF", color: "#000", borderColor: "#98BCFF" }}
                                 />
                             </div>
 
-                            <button type="button" className="btn btn-primary px-4">
+                            <button type="button" className="btn px-4" style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}>
                                 Publicar reseña
                             </button>
                         </div>
@@ -52,7 +53,7 @@ const Review = () => {
                 </div>
 
                 <div className="col-lg-5">
-                    <div className="h-100 p-4 rounded-4 border border-primary-subtle" style={{ backgroundColor: "transparent" }}>
+                    <div className="h-100 p-4 rounded-4" style={{ backgroundColor: "transparent" }}>
                         <div
                             className="rounded d-flex align-items-center justify-content-center mb-3 border"
                             style={{ height: "220px", backgroundColor: "#f5f9ff", borderColor: "#cfe2ff" }}
