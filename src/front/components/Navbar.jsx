@@ -3,7 +3,9 @@ import React from "react";
 export const Navbar = () => {
   return (
     <header className="navbar">
-      <h1 className="logo">Audia</h1>
+      <a href="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
+        <h1 className="logo">Audia</h1>
+      </a>
 
       <div className="navbar-right">
         <nav>
