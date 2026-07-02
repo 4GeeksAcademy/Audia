@@ -21,9 +21,10 @@ const Review = () => {
                                         <button
                                             key={star}
                                             type="button"
-                                            className={`btn btn-sm ${rating >= star ? "btn-warning" : "btn-outline-warning"}`}
+                                            className={`btn btn-sm ${rating >= star ? "btn-primary" : "btn-outline-primary"}`}
                                             onClick={() => setRating(star)}
                                             aria-label={`Calificar con ${star} estrellas`}
+                                            style={{ minWidth: "42px" }}
                                         >
                                             <i className={`fa${rating >= star ? "s" : "r"} fa-star`}></i>
                                         </button>
@@ -51,25 +52,23 @@ const Review = () => {
                 </div>
 
                 <div className="col-lg-5">
-                    <div className="card shadow-sm border-0 h-100">
-                        <div className="card-body p-4">
-                            <div
-                                className="bg-light rounded d-flex align-items-center justify-content-center mb-3"
-                                style={{ height: "220px" }}
-                            >
-                                <span className="text-muted">Portada del álbum</span>
-                            </div>
-
-                            <h3 className="h4 mb-2">Midnight Echoes</h3>
-                            <p className="text-muted mb-1">Luna Vega</p>
-                            <p className="small text-muted mb-3">2024 · Indie Pop · 12 canciones</p>
-
-                            <ul className="list-group list-group-flush">
-                                <li className="list-group-item px-0">Género: Indie Pop</li>
-                                <li className="list-group-item px-0">Duración: 38 min</li>
-                                <li className="list-group-item px-0">Sello: Nova Records</li>
-                            </ul>
+                    <div className="h-100 p-4 rounded-4 border border-primary-subtle" style={{ backgroundColor: "transparent" }}>
+                        <div
+                            className="rounded d-flex align-items-center justify-content-center mb-3 border"
+                            style={{ height: "220px", backgroundColor: "#f5f9ff", borderColor: "#cfe2ff" }}
+                        >
+                            <span className="text-primary-emphasis">Portada del álbum</span>
                         </div>
+
+                        <h3 className="h4 mb-2 text-white"><strong>Midnight Echoes</strong></h3>
+                        <p className="text-white mb-1">Luna Vega</p>
+                        <p className="small text-light mb-3">2024 · Indie Pop · 12 canciones</p>
+
+                        <ul className="list-group list-group-flush">
+                            <li className="list-group-item px-0 bg-transparent text-white">Género: Indie Pop</li>
+                            <li className="list-group-item px-0 bg-transparent text-white">Duración: 38 min</li>
+                            <li className="list-group-item px-0 bg-transparent text-white">Sello: Nova Records</li>
+                        </ul>
                     </div>
                 </div>
             </div>
