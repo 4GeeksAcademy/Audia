@@ -56,7 +56,7 @@
   white-space: nowrap;
 }
 
-.release-filters button:first-child {
+.release-filters button.active {
   background: #9db5ff;
   color: #102040;
 }

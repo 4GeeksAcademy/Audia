@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const albums = [
     {
@@ -33,19 +33,28 @@ const albums = [
         title: "Cloud 9",
         artist: "Megan Moroney",
         year: "2026",
-        genre: "Country pop",
+        genre: "Country",
         image: "/albums/cloud-9.jpg",
     },
     {
         title: "Victory",
         artist: "Madeon",
         year: "2026",
-        genre: "Electronic",
+        genre: "Electrónica",
         image: "/albums/victory.jpg",
     },
 ];
 
+
 export const LatestReleases = () => {
+    const [activeGenre, setActiveGenre] = useState("Todos");
+
+    const genres = ["Todos", "Pop", "Hip-hop", "Rock", "Alternativo", "Electrónica", "Country", "R&B"];
+
+    const filteredAlbums =
+        activeGenre === "Todos"
+            ? albums
+            : albums.filter((album) => album.genre === activeGenre);
     return (
         <main className="releases-page">
             <section className="releases-header">
@@ -57,16 +66,20 @@ export const LatestReleases = () => {
             </section>
 
             <section className="release-filters">
-                <button>Todos</button>
-                <button>Pop</button>
-                <button>Hip-hop</button>
-                <button>Rock</button>
-                <button>Alternativo</button>
-                <button>Electrónica</button>
+                {genres.map((genre) => (
+                    <button
+                        key={genre}
+                        type="button"
+                        className={activeGenre === genre ? "active" : ""}
+                        onClick={() => setActiveGenre(genre)}
+                    >
+                        {genre}
+                    </button>
+                ))}
             </section>
 
             <section className="releases-grid">
-                {albums.map((album) => (
+                {filteredAlbums.map((album) => (
                     <a href="#" className="release-card" key={album.title}>
                         <div className="release-cover">
                             <img src={album.image} alt={`Portada de ${album.title}`} />
