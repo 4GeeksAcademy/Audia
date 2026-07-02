@@ -10,6 +10,7 @@ export const Navbar = () => {
           <a href="#ulti">Últimos lanzamientos</a>
           <a href="#">Géneros</a>
           <a href="#">Random Pick</a>
+          <a href="/review">Reseñas</a>
         </nav>
 
         <a href="/Login" className="user-link">Iniciar sesión</a>
