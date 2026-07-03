@@ -6,14 +6,23 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-
+    username: Mapped[str] = mapped_column(
+        String(40), unique=True, nullable=False
+    )
+    email: Mapped[str] = mapped_column(
+        String(120), unique=True, nullable=False
+    )
+    password_hash: Mapped[str] = mapped_column(
+        String(255), nullable=False
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean(), nullable=False, default=True
+    )
 
     def serialize(self):
         return {
             "id": self.id,
+            "username": self.username,
             "email": self.email,
-            # do not serialize the password, its a security breach
+            "is_active": self.is_active
         }
