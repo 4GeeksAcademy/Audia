@@ -3,7 +3,8 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 
@@ -57,3 +58,38 @@ def register():
         "message": "Cuenta creada correctamente",
         "user": new_user.serialize()
     }), 201
+
+@api.route("/login", methods=["POST"])
+def login():
+    data = request.get_json() or {}
+
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+
+    if not email or not password:
+        return jsonify({
+            "error": "Correo y contraseña son obligatorios"
+        }), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user or not check_password_hash(
+        user.password_hash,
+        password
+    ):
+        return jsonify({
+            "error": "Correo o contraseña incorrectos"
+        }), 401
+
+    if not user.is_active:
+        return jsonify({
+            "error": "La cuenta está desactivada"
+        }), 403
+
+    token = create_access_token(identity=str(user.id))
+
+    return jsonify({
+        "message": "Inicio de sesión correcto",
+        "token": token,
+        "user": user.serialize()
+    }), 200
