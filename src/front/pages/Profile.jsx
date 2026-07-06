@@ -16,7 +16,7 @@ export const Profile = () => {
     );
 
     const [profileImage, setProfileImage] = useState(
-        "../public/albums/perfil.png"
+        "/albums/perfil.jpg"
     );
 
     const [showEditor, setShowEditor] = useState(false);
@@ -27,54 +27,56 @@ export const Profile = () => {
 
     const [newImage, setNewImage] = useState(profileImage);
 
+    const [selectedImage, setSelectedImage] = useState(null);
+
     const favoriteAlbums = [
         {
             id: 1,
             title: "After Hours",
             artist: "The Weeknd",
-            cover: "../public/albums/1.png"
+            cover: "/albums/1.png"
         },
         {
             id: 2,
             title: "DAMN.",
             artist: "Kendrick Lamar",
-            cover: "../public/albums/2.png"
+            cover: "/albums/2.png"
         },
         {
             id: 3,
             title: "Currents",
             artist: "Tame Impala",
-            cover: "../public/albums/3.jpg"
+            cover: "/albums/3.jpg"
         },
         {
             id: 4,
             title: "Random Access Memories",
             artist: "Daft Punk",
-            cover: "../public/albums/4.png"
+            cover: "/albums/4.png"
         },
         {
             id: 5,
             title: "Abbey Road",
             artist: "The Beatles",
-            cover: "../public/albums/5.jpg"
+            cover: "/albums/5.jpg"
         },
         {
             id: 6,
             title: "Blonde",
             artist: "Frank Ocean",
-            cover: "../public/albums/6.jpeg"
+            cover: "/albums/6.jpeg"
         },
         {
             id: 7,
             title: "Graduation",
             artist: "Kanye West",
-            cover: "../public/albums/7.jpg"
+            cover: "/albums/7.jpg"
         },
         {
             id: 8,
             title: "Discovery",
             artist: "Daft Punk",
-            cover: "../public/albums/8.png"
+            cover: "/albums/8.png"
         }
     ];
 
@@ -95,7 +97,7 @@ export const Profile = () => {
             rating: "★★★★☆",
             review:
                 "Uno de los mejores álbumes de rock psicodélico moderno.",
-            cover: "../public/albums/3.jpg"
+            cover: "/albums/3.jpg"
         },
         {
             id: 3,
@@ -104,20 +106,81 @@ export const Profile = () => {
             rating: "★★★★★",
             review:
                 "Un clásico moderno con una producción espectacular.",
-            cover: "../public/albums/4.png"
+            cover: "/albums/4.png"
         }
     ];
-    const saveProfile = () => {
+    const saveProfile = async () => {
+        try {
+            setError("");
 
-        setName(newName);
+            const backendUrl =
+                import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
 
-        setDescription(newDescription);
+            const token = localStorage.getItem("token");
+            let imageUrl = newImage;
 
-        setProfileImage(newImage);
+            if (selectedImage) {
+                const formData = new FormData();
+                formData.append("image", selectedImage);
 
-        setShowEditor(false);
+                const uploadResponse = await fetch(
+                    `${backendUrl}/api/profile/image`,
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: formData
+                    }
+                );
 
-    }
+                const uploadData = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(
+                        uploadData.error || "No se pudo subir la imagen"
+                    );
+                }
+
+                imageUrl = `${backendUrl}${uploadData.image_path}`;
+            }
+
+            const response = await fetch(`${backendUrl}/api/profile`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    display_name: newName,
+                    description: newDescription,
+                    profile_image: imageUrl
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || "No se pudo actualizar el perfil"
+                );
+            }
+
+            setUser(data.user);
+            setName(data.user.display_name);
+            setDescription(data.user.description);
+            setProfileImage(data.user.profile_image);
+            setNewImage(data.user.profile_image);
+            setSelectedImage(null);
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -145,8 +208,21 @@ export const Profile = () => {
                 }
 
                 setUser(data.user);
-                setName(data.user.username);
-                setNewName(data.user.username);
+                const loadedName =
+                    data.user.display_name || data.user.username;
+
+                setName(loadedName);
+                setNewName(loadedName);
+
+                setDescription(data.user.description || "");
+                setNewDescription(data.user.description || "");
+
+                const loadedImage =
+                    data.user.profile_image || "/albums/perfil.jpg";
+
+                setProfileImage(loadedImage);
+                setNewImage(loadedImage);
+
             } catch (error) {
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
@@ -184,11 +260,10 @@ export const Profile = () => {
                         <div className="col-lg-4 text-center">
 
                             <img
-                                src={profileImage}
-                                alt="Perfil"
-                                className="profile-picture"
+                                src={profileImage || "/albums/perfil.jpg"}
+                                alt="Foto de perfil"
+                                className="profile-avatar"
                             />
-
                         </div>
 
                         <div className="col-lg-8">
@@ -389,7 +464,14 @@ export const Profile = () => {
                             <input
                                 className="form-control mb-3"
                                 type="file"
-                                accept="image/*"
+                                accept="image/png,image/jpeg,image/webp"
+                                onChange={(event) => {
+                                    const file = event.target.files[0];
+
+                                    if (file) {
+                                        setSelectedImage(file);
+                                    }
+                                }}
                             />
 
                             <label>Nombre</label>

@@ -1,7 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-from flask import Flask, request, jsonify, url_for, Blueprint
+from flask import Flask, request, jsonify, url_for, Blueprint, current_app
 from api.models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
@@ -10,21 +10,41 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 from api.utils import generate_sitemap, APIException
-from flask_cors import CORS
+import os
+import uuid
+from werkzeug.utils import secure_filename
+
 
 api = Blueprint('api', __name__)
 
-# Allow CORS requests to this API
-CORS(api)
 
-@api.route("/profile", methods=["GET"])
+
+@api.route("/profile", methods=["GET", "PUT"])
 @jwt_required()
-def get_profile():
+def profile():
     user_id = int(get_jwt_identity())
     user = db.session.get(User, user_id)
 
     if not user:
         return jsonify({"error": "Usuario no encontrado"}), 404
+
+    if request.method == "PUT":
+        data = request.get_json() or {}
+
+        user.display_name = data.get(
+            "display_name",
+            user.display_name
+        )
+        user.description = data.get(
+            "description",
+            user.description
+        )
+        user.profile_image = data.get(
+            "profile_image",
+            user.profile_image
+        )
+
+        db.session.commit()
 
     return jsonify({"user": user.serialize()}), 200
 
@@ -106,3 +126,35 @@ def login():
         "token": token,
         "user": user.serialize()
     }), 200
+
+@api.route("/profile/image", methods=["POST"])
+@jwt_required()
+def upload_profile_image():
+    image = request.files.get("image")
+
+    if not image or not image.filename:
+        return jsonify({"error": "No se recibió una imagen"}), 400
+
+    extension = image.filename.rsplit(".", 1)[-1].lower()
+    allowed = {"jpg", "jpeg", "png", "webp"}
+
+    if extension not in allowed:
+        return jsonify({
+            "error": "Formato no permitido"
+        }), 400
+
+    filename = secure_filename(
+        f"{uuid.uuid4().hex}.{extension}"
+    )
+
+    upload_folder = os.path.join(
+        current_app.static_folder,
+        "uploads"
+    )
+
+    os.makedirs(upload_folder, exist_ok=True)
+    image.save(os.path.join(upload_folder, filename))
+
+    return jsonify({
+        "image_path": f"/static/uploads/{filename}"
+    }), 201
