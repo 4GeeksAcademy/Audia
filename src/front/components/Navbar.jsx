@@ -1,23 +1,45 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
+  const location = useLocation();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+  const savedUser = localStorage.getItem("user");
+
+  try {
+      setUser(savedUser ? JSON.parse(savedUser) : null);
+    } catch {
+      localStorage.removeItem("user");
+      setUser(null);
+    }
+  }, [location.pathname]);
+
   return (
     <header className="navbar">
-      <a href="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
-        <h1 className="logo">Audia</h1>
-      </a>
+      <Link
+        to="/"
+        className="logo"
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        <h1>Audia</h1>
+      </Link>
 
       <div className="navbar-right">
         <nav>
-          <a href="/ultimos-lanzamientos">Últimos lanzamientos</a>
-          <a href="#">Géneros</a>
-          <a href="#">Random Pick</a>
-          <a href="/review">Reseñas</a>
+          <Link to="/ultimos-lanzamientos">Últimos lanzamientos</Link>
+          <Link to="/generos">Géneros</Link>
+          <Link to="/random-pick">Random Pick</Link>
+          <Link to="/review">Reseñas</Link>
         </nav>
 
-        <a href="/login" className="user-link">Iniciar sesión</a>
-        <a href="/Profile" className="user-link">Perfil</a>
+        <Link
+          to={user ? "/profile" : "/login"}
+          className="user-link"
+        >
+          {user ? user.username : "Iniciar sesión"}
+        </Link>
       </div>
     </header>
   );

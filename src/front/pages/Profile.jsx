@@ -1,7 +1,13 @@
-import React, { useState } from "react";
 import "../profile.css";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Profile = () => {
+
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
     const [name, setName] = useState("Juan Diego");
 
@@ -113,6 +119,56 @@ export const Profile = () => {
 
     }
 
+    useEffect(() => {
+        const loadProfile = async () => {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                navigate("/login");
+                return;
+            }
+
+            try {
+                const backendUrl =
+                    import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
+
+                const response = await fetch(`${backendUrl}/api/profile`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Sesión inválida");
+                }
+
+                setUser(data.user);
+                setName(data.user.username);
+                setNewName(data.user.username);
+            } catch (error) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                setError(error.message);
+                navigate("/login");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProfile();
+    }, [navigate]);
+
+    if (loading) return <p className="profile-status">Cargando perfil...</p>;
+    if (error) return <p className="profile-status">{error}</p>;
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+    };
+
     return (
 
         <div className="profile-page">
@@ -142,7 +198,7 @@ export const Profile = () => {
                             </h1>
 
                             <p className="profile-user">
-                                @juandiego
+                                @{user?.username}
                             </p>
 
                             <p className="profile-description">
@@ -157,6 +213,14 @@ export const Profile = () => {
                                 data-bs-target="#editProfileModal"
                             >
                                 Editar Perfil
+                            </button>
+
+                            <button
+                                type="button"
+                                className="logout-btn"
+                                onClick={handleLogout}
+                            >
+                                Cerrar sesión
                             </button>
 
                             <div className="row text-center mt-4">
