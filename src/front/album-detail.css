@@ -1,0 +1,43 @@
+.album-detail-page {
+  max-width: 980px;
+  margin: 32px auto;
+  padding: 24px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #98bcff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.album-detail-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 24px;
+  background: #f6f8fd;
+  color: #102040;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+}
+
+.album-detail-card img {
+  width: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+  min-height: 260px;
+}
+
+.album-detail-label {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4c6a9a;
+}
+
+.album-detail-card h1 {
+  margin: 0 0 10px;
+}

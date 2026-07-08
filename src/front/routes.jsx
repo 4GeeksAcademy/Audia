@@ -8,6 +8,8 @@ import {
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import { Single } from "./pages/Single";
+import { AlbumDetail } from "./pages/AlbumDetail";
+import { ItemDetail } from "./pages/ItemDetail";
 import { Demo } from "./pages/Demo";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
@@ -27,15 +29,17 @@ export const router = createBrowserRouter(
     // Root Route: All navigation will start from here.
     <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>} >
 
-        {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
-        <Route index element={<Home />} />
-        <Route path="/single/:theId" element={ <Single />} />  {/* Dynamic route for single items */}
-        <Route path="/demo" element={<Demo />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/Register" element={<Register />} />
-        <Route path="/ultimos-lanzamientos" element={<LatestReleases />} />
-        <Route path="/review" element={<Review />} />
-        <Route path="/profile" element={<Profile />} />
+      {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
+      <Route index element={<Home />} />
+      <Route path="/single/:theId" element={<Single />} />  {/* Dynamic route for single items */}
+      <Route path="/album/:albumId" element={<AlbumDetail />} />
+      <Route path="/:itemType/:itemId" element={<ItemDetail />} />
+      <Route path="/demo" element={<Demo />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/Register" element={<Register />} />
+      <Route path="/ultimos-lanzamientos" element={<LatestReleases />} />
+      <Route path="/review" element={<Review />} />
+      <Route path="/profile" element={<Profile />} />
 
 
     </Route>
