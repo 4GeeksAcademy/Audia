@@ -19,26 +19,45 @@ from urllib.request import Request, urlopen
 from werkzeug.utils import secure_filename
 
 
+class APIException(Exception):
+    def __init__(self, message, status_code=500):
+        super().__init__(message)
+        self.status_code = status_code
+
+class APIException(Exception):
+    def __init__(self, message, status_code=500):
+        super().__init__(message)
+        self.status_code = status_code
+
+# 2. ¡ESTA ES LA LÍNEA QUE FALTABA! Inicializamos el Blueprint.
 api = Blueprint('api', __name__)
 
-RECCOBEATS_BASE_URL = os.getenv(
-    "RECCOBEATS_API_URL", "https://api.reccobeats.com/v1/album")
+# 3. Variables de entorno (sin necesidad de API Key)
+RECCOBEATS_BASE_URL = os.getenv("RECCOBEATS_API_URL", "https://api.reccobeats.com/v1")
 
 
 def _reccobeats_request(path, params=None):
     params = params or {}
     query_string = urlencode(params, doseq=True)
     url = f"{RECCOBEATS_BASE_URL}{path}"
+    
     if query_string:
         url = f"{url}?{query_string}"
     print(f"Making request to ReccoBeats URL: {url}")
 
-    request_obj = Request(url, headers={"Accept": "application/json"})
+    request_obj = Request(
+        url,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0",
+        },
+    )
 
     try:
         with urlopen(request_obj, timeout=15) as response:
             payload = response.read().decode("utf-8")
             return json.loads(payload)
+            
     except HTTPError as exc:
         body = exc.read().decode("utf-8", "ignore")
         try:
@@ -50,6 +69,12 @@ def _reccobeats_request(path, params=None):
     except URLError as exc:
         raise APIException(
             message="No se pudo conectar con ReccoBeats", status_code=502)
+    except TimeoutError as exc:
+        raise APIException(
+            message="La búsqueda tardó demasiado en responder", status_code=504)
+    except Exception as exc:
+        raise APIException(
+            message="No se pudo completar la búsqueda en ReccoBeats", status_code=502)
 
 
 def _normalize_reccobeats_item(item, item_type):
@@ -64,10 +89,10 @@ def _normalize_reccobeats_item(item, item_type):
         artist_names = []
         for artist in artists:
             if isinstance(artist, dict):
-                artist_names.append(artist.get(
-                    "name") or artist.get("title") or "")
+                artist_names.append(artist.get("name") or artist.get("title") or "")
             elif isinstance(artist, str):
                 artist_names.append(artist)
+                
         return {
             "id": item_id,
             "name": name or item.get("title"),
@@ -96,62 +121,50 @@ def _normalize_reccobeats_item(item, item_type):
 
 
 def _normalize_reccobeats_results(payload):
-    if not isinstance(payload, dict):
-        return []
-
-    candidates = payload.get("results") or payload.get(
-        "albums") or payload.get("artists") or payload.get("items") or []
-
-    if isinstance(candidates, dict):
-        candidates = candidates.get("items") or candidates.get("results") or []
-
-    if not isinstance(candidates, list):
-        return []
-
     normalized = []
-    for item in candidates:
-        if isinstance(item, dict):
-            item_type = item.get("type")
-            if item_type == "artist":
-                normalized.append(_normalize_reccobeats_item(item, "artist"))
-            elif item_type == "album":
-                normalized.append(_normalize_reccobeats_item(item, "album"))
-            else:
-                inferred_type = "album" if item.get(
-                    "artists") or item.get("track_count") else "artist"
-                normalized.append(
-                    _normalize_reccobeats_item(item, inferred_type))
-    return [item for item in normalized if item is not None]
+    
+    # 1. Accedemos a la lista real que está dentro de 'content'
+    items = payload.get("content", [])
+    
+    for item in items:
+        # 2. Extraemos el nombre del primer artista (o "Varios" si hay muchos)
+        artists = item.get("artists", [])
+        artist_name = artists[0]["name"] if artists else "Desconocido"
+        
+        # 3. Formateamos el objeto para que tu frontend lo entienda bien
+        normalized.append({
+            "id": item.get("id"),
+            "title": item.get("name"),
+            "artist": artist_name,
+            "year": item.get("releaseDate", "").split("-")[0], # Tomamos solo el año YYYY
+            "link": item.get("href"),
+            "type": item.get("albumType"),
+            "popularity": item.get("popularity", 0)
+        })
+        
+    return normalized
 
 
+# 4. Las rutas usando el decorador del Blueprint
 @api.route("/reccobeats/search", methods=["GET"])
 def reccobeats_search():
     query = request.args.get("q", "").strip()
     if not query:
         return jsonify({"error": "El parámetro query es obligatorio"}), 400
 
-    result_type = request.args.get("type", "all").lower()
+    result_type = request.args.get("type", "album").lower()
     last_error = None
     payload = None
-
     candidates = []
-    if result_type in {"all", "both"}:
+    
+    if result_type in {"all", "both", "album"}:
         candidates = [
-            ("/search", {"q": query, "type": "all"}),
-            ("/search", {"query": query, "type": "all"}),
-        ]
-    elif result_type == "album":
-        candidates = [
-            ("/search/albums", {"q": query}),
-            ("/search", {"q": query, "type": "album"}),
+            ("/album/search", {"searchText": query})
         ]
     elif result_type == "artist":
-        candidates = [
-            ("/search/artists", {"q": query}),
-            ("/search", {"q": query, "type": "artist"}),
-        ]
+        return jsonify({"error": "La búsqueda solo está disponible para álbumes"}), 400
     else:
-        return jsonify({"error": "El parámetro type debe ser all, album o artist"}), 400
+        return jsonify({"error": "El parámetro type debe ser album"}), 400
 
     for path, params in candidates:
         try:
@@ -175,6 +188,7 @@ def reccobeats_search():
     }), 200
 
 
+@api.route("/reccobeats/detail/<item_type>/<item_id>", methods=["GET"])
 def _reccobeats_item_detail(item_type, item_id):
     item_type = (item_type or "").lower()
     if item_type not in {"album", "artist"}:
@@ -182,8 +196,7 @@ def _reccobeats_item_detail(item_type, item_id):
 
     payload = None
     last_error = None
-    candidates = [f"/album/{item_id}", f"/albums/{item_id}"] if item_type == "album" else [
-        f"/artist/{item_id}", f"/artists/{item_id}"]
+    candidates = [f"/album/{item_id}"] if item_type == "album" else [f"/artist/{item_id}"]
 
     for path in candidates:
         try:
@@ -199,8 +212,8 @@ def _reccobeats_item_detail(item_type, item_id):
 
     normalized_item = _normalize_reccobeats_item(
         payload if isinstance(payload, dict) else {}, item_type)
+        
     return jsonify({item_type: normalized_item}), 200
-
 
 @api.route("/reccobeats/album/<album_id>", methods=["GET"])
 def reccobeats_album_detail(album_id):

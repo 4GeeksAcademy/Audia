@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -20,7 +21,7 @@ export const Navbar = () => {
     }
   }, [location.pathname]);
 
-  const handleSearch = async (event) => {
+  const handleSearch = (event) => {
     event.preventDefault();
 
     const query = searchQuery.trim();
@@ -32,26 +33,9 @@ export const Navbar = () => {
 
     setIsLoading(true);
     setSearchError("");
-
-    try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
-      const response = await fetch(`${backendUrl}/api/reccobeats/search?q=${encodeURIComponent(query)}&type=all`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "No se pudo completar la búsqueda");
-      }
-
-      setSearchResults(data.results || []);
-      if (!data.results?.length) {
-        setSearchError("No se encontraron resultados");
-      }
-    } catch (error) {
-      setSearchResults([]);
-      setSearchError(error.message || "No se pudo completar la búsqueda");
-    } finally {
-      setIsLoading(false);
-    }
+    setSearchResults([]);
+    navigate(`/search?q=${encodeURIComponent(query)}`);
+    setIsLoading(false);
   };
 
   const clearSearch = () => {

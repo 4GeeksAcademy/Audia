@@ -16,6 +16,7 @@ import { Register } from "./pages/Register";
 import { LatestReleases } from "./pages/latest-releases";
 import Review from "./pages/Review";
 import { Profile } from "./pages/Profile";
+import { SearchResults } from "./pages/SearchResults";
 
 
 export const router = createBrowserRouter(
@@ -40,6 +41,7 @@ export const router = createBrowserRouter(
       <Route path="/ultimos-lanzamientos" element={<LatestReleases />} />
       <Route path="/review" element={<Review />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/search" element={<SearchResults />} />
 
 
     </Route>

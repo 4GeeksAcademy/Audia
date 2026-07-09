@@ -35,7 +35,7 @@ class ReccoBeatsRoutesTest(unittest.TestCase):
         mock_urlopen.return_value = FakeResponse('{"results": []}')
 
         response = self.client.get(
-            "/api/reccobeats/search?q=daft%20punk&type=all")
+            "/api/reccobeats/search?q=daft%20punk&type=album")
 
         self.assertEqual(response.status_code, 200)
         request = mock_urlopen.call_args.args[0]
@@ -61,14 +61,14 @@ class ReccoBeatsRoutesTest(unittest.TestCase):
         )
 
         response = self.client.get(
-            "/api/reccobeats/search?q=daft%20punk&type=all")
+            "/api/reccobeats/search?q=daft%20punk&type=album")
 
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertEqual(data["query"], "daft punk")
-        self.assertEqual(len(data["results"]), 2)
+        self.assertEqual(len(data["results"]), 1)
         self.assertEqual(data["results"][0]["type"], "album")
-        self.assertEqual(data["results"][1]["name"], "Daft Punk")
+        self.assertEqual(data["results"][0]["name"], "Random Access Memories")
 
     @patch("api.routes.urlopen")
     def test_item_detail_returns_artist_payload(self, mock_urlopen):
