@@ -56,6 +56,10 @@ export const Navbar = () => {
 
       <div className="navbar-right">
         <form className="navbar-search" role="search" onSubmit={handleSearch}>
+          <select id="search-type">
+            <option value="album">Álbum</option>
+            <option value="artist">Artista</option>
+          </select>
           <input
             type="search"
             value={searchQuery}
@@ -69,6 +73,7 @@ export const Navbar = () => {
             placeholder="Buscar álbumes o artistas"
             aria-label="Buscar álbumes o artistas"
           />
+
           <button type="submit" aria-label="Buscar" disabled={isLoading}>
             {isLoading ? "…" : "🔍"}
           </button>

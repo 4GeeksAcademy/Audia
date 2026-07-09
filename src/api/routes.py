@@ -35,7 +35,33 @@ api = Blueprint('api', __name__)
 # 3. Variables de entorno (sin necesidad de API Key)
 RECCOBEATS_BASE_URL = os.getenv("RECCOBEATS_API_URL", "https://api.reccobeats.com/v1")
 
+def reccobeats_search():
+    query = request.args.get("q", "").strip()
+    search_type = request.args.get("type", "album") # 'album' por defecto
+    
+    if not query:
+        return jsonify({"error": "Query requerido"}), 400
 
+    # Lógica de bifurcación
+    if search_type == "artist":
+        # Llamamos al endpoint de artistas (inventando el path, ajusta al real)
+        path = "/artist/search" 
+        params = {"artistName": query}
+    else:
+        # Buscamos álbumes
+        path = "/album/search"
+        params = {"albumName": query} # O el parámetro que use la API
+
+    try:
+        payload = _reccobeats_request(path, params)
+        # Aquí normalizas según el tipo de resultado
+        return jsonify({
+            "results": _normalize_reccobeats_results(payload, search_type),
+            "type": search_type
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 def _reccobeats_request(path, params=None):
     params = params or {}
     query_string = urlencode(params, doseq=True)
