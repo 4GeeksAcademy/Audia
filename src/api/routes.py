@@ -376,3 +376,52 @@ def upload_profile_image():
     return jsonify({
         "image_path": f"/static/uploads/{filename}"
     }), 201
+
+
+@api.route("/change-password", methods=["PUT"])
+@jwt_required()
+def change_password():
+    user_id = int(get_jwt_identity())
+    user = db.session.get(User, user_id)
+
+    if not user:
+        return jsonify({
+            "error": "Usuario no encontrado"
+        }), 404
+
+    data = request.get_json() or {}
+
+    current_password = data.get("current_password")
+    confirm_password = data.get("confirm_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not confirm_password or not new_password:
+        return jsonify({
+            "error": "Todos los campos son obligatorios"
+        }), 400
+
+    if current_password != confirm_password:
+        return jsonify({
+            "error": "Las contraseñas actuales no coinciden"
+        }), 400
+
+    if not check_password_hash(
+        user.password_hash,
+        current_password
+    ):
+        return jsonify({
+            "error": "La contraseña actual es incorrecta"
+        }), 401
+
+    if len(new_password) < 8:
+        return jsonify({
+            "error": "La nueva contraseña debe tener mínimo 8 caracteres"
+        }), 400
+
+    user.password_hash = generate_password_hash(new_password)
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Contraseña actualizada correctamente"
+    }), 200

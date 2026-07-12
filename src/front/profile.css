@@ -420,3 +420,47 @@
 .btn-primary:hover{
     background: #314b7c;
 }
+
+.change-password-btn {
+    margin-left: 12px;
+    background: transparent;
+    border: 2px solid white;
+    color: #314b7c;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.change-password-btn:hover {
+    background: #314b7c;
+    color: white;
+}
+
+.password-info {
+    font-size: .95rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.forgot-password-text {
+    text-align: center;
+    color: #777;
+    margin-bottom: 8px;
+    font-size: .9rem;
+}
+
+.forgot-password-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #314b7c;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.forgot-password-btn:hover {
+    text-decoration: underline;
+    color: #314b7c;
+}
