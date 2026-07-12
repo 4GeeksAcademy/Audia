@@ -32,228 +32,206 @@ class APIException(Exception):
 # 2. ¡ESTA ES LA LÍNEA QUE FALTABA! Inicializamos el Blueprint.
 api = Blueprint('api', __name__)
 
-# 3. Variables de entorno (sin necesidad de API Key)
-RECCOBEATS_BASE_URL = os.getenv("RECCOBEATS_API_URL", "https://api.reccobeats.com/v1")
+LASTFM_BASE_URL = os.getenv("LASTFM_API_URL", "https://ws.audioscrobbler.com/2.0/")
 
-def reccobeats_search():
-    query = request.args.get("q", "").strip()
-    search_type = request.args.get("type", "album") # 'album' por defecto
-    
-    if not query:
-        return jsonify({"error": "Query requerido"}), 400
 
-    # Lógica de bifurcación
-    if search_type == "artist":
-        # Llamamos al endpoint de artistas (inventando el path, ajusta al real)
-        path = "/artist/search" 
-        params = {"artistName": query}
-    else:
-        # Buscamos álbumes
-        path = "/album/search"
-        params = {"albumName": query} # O el parámetro que use la API
+def _lastfm_request(method, **params):
+    api_key = os.getenv("LASTFM_API_KEY", "")
+    if not api_key:
+        raise APIException(message="LASTFM_API_KEY no configurada", status_code=500)
 
-    try:
-        payload = _reccobeats_request(path, params)
-        # Aquí normalizas según el tipo de resultado
-        return jsonify({
-            "results": _normalize_reccobeats_results(payload, search_type),
-            "type": search_type
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-def _reccobeats_request(path, params=None):
-    params = params or {}
-    query_string = urlencode(params, doseq=True)
-    url = f"{RECCOBEATS_BASE_URL}{path}"
-    
-    if query_string:
-        url = f"{url}?{query_string}"
-    print(f"Making request to ReccoBeats URL: {url}")
+    query_params = {
+        "method": method,
+        "api_key": api_key,
+        "format": "json",
+        **params,
+    }
+    url = f"{LASTFM_BASE_URL}?{urlencode(query_params)}"
+    print(f"Making request to Last.fm URL: {url}")
 
     request_obj = Request(
         url,
         headers={
             "Accept": "application/json",
-            "User-Agent": "Mozilla/5.0",
+            "User-Agent": "Audia/1.0",
         },
     )
 
     try:
         with urlopen(request_obj, timeout=15) as response:
-            payload = response.read().decode("utf-8")
-            return json.loads(payload)
-            
+            payload = json.loads(response.read().decode("utf-8"))
     except HTTPError as exc:
         body = exc.read().decode("utf-8", "ignore")
         try:
             details = json.loads(body)
             message = details.get("message") or details.get("error") or body
         except Exception:
-            message = body or "ReccoBeats devolvió un error"
+            message = body or "Last.fm devolvió un error"
         raise APIException(message=message, status_code=exc.code)
-    except URLError as exc:
+    except URLError:
+        raise APIException(message="No se pudo conectar con Last.fm", status_code=502)
+    except TimeoutError:
+        raise APIException(message="La búsqueda tardó demasiado en responder", status_code=504)
+    except Exception:
+        raise APIException(message="No se pudo completar la búsqueda en Last.fm", status_code=502)
+
+    if isinstance(payload, dict) and "error" in payload:
         raise APIException(
-            message="No se pudo conectar con ReccoBeats", status_code=502)
-    except TimeoutError as exc:
-        raise APIException(
-            message="La búsqueda tardó demasiado en responder", status_code=504)
-    except Exception as exc:
-        raise APIException(
-            message="No se pudo completar la búsqueda en ReccoBeats", status_code=502)
+            message=payload.get("message", "Last.fm devolvió un error"),
+            status_code=502,
+        )
+
+    return payload
 
 
-def _normalize_reccobeats_item(item, item_type):
+def _lastfm_image_url(item):
+    for size in ("extralarge", "mega", "large", "medium", "small"):
+        for image in item.get("image", []):
+            if image.get("size") == size:
+                url = (image.get("#text") or "").strip()
+                if url:
+                    return url
+    return None
+
+
+def _normalize_lastfm_album(item):
     if not isinstance(item, dict):
         return None
 
-    item_id = item.get("id") or item.get("album_id") or item.get("artist_id")
-    name = item.get("name") or item.get("title") or item.get("full_name")
+    artist_name = (item.get("artist") or "").strip() or "Desconocido"
 
-    if item_type == "album":
-        artists = item.get("artists") or []
-        artist_names = []
-        for artist in artists:
-            if isinstance(artist, dict):
-                artist_names.append(artist.get("name") or artist.get("title") or "")
-            elif isinstance(artist, str):
-                artist_names.append(artist)
-                
-        return {
-            "id": item_id,
-            "name": name or item.get("title"),
-            "type": "album",
-            "cover": item.get("cover") or item.get("cover_image") or item.get("image"),
-            "artists": artist_names,
-            "artist": ", ".join([artist for artist in artist_names if artist]),
-            "year": item.get("year") or item.get("release_date"),
-        }
+    name = item.get("name") or ""
+    mbid = (item.get("mbid") or "").strip()
 
-    if item_type == "artist":
-        return {
-            "id": item_id,
-            "name": name,
-            "type": "artist",
-            "image": item.get("image") or item.get("cover") or item.get("avatar"),
-            "genres": item.get("genres") or [],
-        }
+    tags_data = item.get("tags", {})
+
+    if isinstance(tags_data, dict):
+        tags = tags_data.get("tag", [])
+    else:
+        tags = []
+
+    if isinstance(tags, dict):
+        tags = [tags]
+    elif not isinstance(tags, list):
+        tags = []
+
+    tag_list = []
+    for tag in tags:
+        tag_list.append(tag.get("name"))
+
+
+    tracks_data = item.get("tracks", {})
+    if isinstance(tracks_data, dict):
+        tracks = tracks_data.get("track", [])
+    else:
+        tracks = []
+
+    if isinstance(tracks, dict):
+        tracks = [tracks]
+    elif not isinstance(tracks, list):
+        tracks = []
+
+    summary = item.get("wiki", {}).get("summary", "")
+
+    normalized_tracks = []
+    for track in tracks:
+        normalized_tracks.append({
+            "name": track.get("name"),
+        })
 
     return {
-        "id": item_id,
+        "id": mbid or f"{artist_name}/{name}",
         "name": name,
-        "type": item.get("type") or item_type,
-        "image": item.get("image") or item.get("cover"),
+        "cover": _lastfm_image_url(item),
+        "artist": artist_name,
+        "summary": summary,
+        "tags": tag_list,
+        "link": item.get("url"),
+        "tracks": normalized_tracks,
     }
 
 
-def _normalize_reccobeats_results(payload):
+def _normalize_lastfm_results(payload):
     normalized = []
-    
-    # 1. Accedemos a la lista real que está dentro de 'content'
-    items = payload.get("content", [])
-    
+
+    # 1. Accedemos a la lista real que está dentro de 'albummatches'
+    items = payload.get("results", {}).get("albummatches", {}).get("album", [])
+
     for item in items:
-        # 2. Extraemos el nombre del primer artista (o "Varios" si hay muchos)
-        artists = item.get("artists", [])
-        artist_name = artists[0]["name"] if artists else "Desconocido"
-        
+        # 2. Extraemos el nombre del artista (Last.fm lo devuelve como string)
+        artist_name = (item.get("artist") or "").strip()
+        name = (item.get("name") or "").strip()
+        if not artist_name or not name:
+            continue
+
         # 3. Formateamos el objeto para que tu frontend lo entienda bien
+        mbid = (item.get("mbid") or "").strip()
+        cover = _lastfm_image_url(item)
+
         normalized.append({
-            "id": item.get("id"),
-            "title": item.get("name"),
+            "mbid": mbid or None,
+            "name": name,
             "artist": artist_name,
-            "year": item.get("releaseDate", "").split("-")[0], # Tomamos solo el año YYYY
-            "link": item.get("href"),
-            "type": item.get("albumType"),
-            "popularity": item.get("popularity", 0)
+            "link": item.get("url"),
+            "cover": cover,
         })
-        
+
     return normalized
 
 
 # 4. Las rutas usando el decorador del Blueprint
-@api.route("/reccobeats/search", methods=["GET"])
-def reccobeats_search():
+@api.route("/lastfm/search", methods=["GET"])
+def lastfm_search():
     query = request.args.get("q", "").strip()
     if not query:
         return jsonify({"error": "El parámetro query es obligatorio"}), 400
 
-    result_type = request.args.get("type", "album").lower()
-    last_error = None
-    payload = None
-    candidates = []
-    
-    if result_type in {"all", "both", "album"}:
-        candidates = [
-            ("/album/search", {"searchText": query})
-        ]
-    elif result_type == "artist":
-        return jsonify({"error": "La búsqueda solo está disponible para álbumes"}), 400
-    else:
-        return jsonify({"error": "El parámetro type debe ser album"}), 400
+    page = request.args.get("page", "1")
+    limit = request.args.get("limit", "50")
 
-    for path, params in candidates:
-        try:
-            print(f"Trying ReccoBeats path: {path} with params: {params}")
-            payload = _reccobeats_request(path, params)
-            print(f"Received payload: {payload}")
-            break
-        except APIException as exc:
-            last_error = exc
-
-    if payload is None:
-        if last_error is not None:
-            return jsonify({"error": str(last_error)}), getattr(last_error, "status_code", 502)
-        return jsonify({"error": "No se pudo completar la búsqueda en ReccoBeats"}), 502
+    try:
+        payload = _lastfm_request(
+            "album.search",
+            album=query,
+            page=page,
+            limit=limit,
+        )
+    except APIException as exc:
+        return jsonify({"error": str(exc)}), exc.status_code
 
     return jsonify({
         "query": query,
-        "type": result_type,
-        "results": _normalize_reccobeats_results(payload),
-        "source": "reccobeats",
+        "results": _normalize_lastfm_results(payload),
     }), 200
 
 
-@api.route("/reccobeats/detail/<item_type>/<item_id>", methods=["GET"])
-def _reccobeats_item_detail(item_type, item_id):
-    item_type = (item_type or "").lower()
-    if item_type not in {"album", "artist"}:
-        return jsonify({"error": "El tipo debe ser album o artist"}), 400
+@api.route("/lastfm/album", methods=["GET"])
+def lastfm_album_detail():
+    artist = request.args.get("artist", "").strip()
+    album = request.args.get("album", "").strip()
+    mbid = request.args.get("mbid", "").strip()
 
-    payload = None
-    last_error = None
-    candidates = [f"/album/{item_id}"] if item_type == "album" else [f"/artist/{item_id}"]
+    try:
+        if artist and album:
+            payload = _lastfm_request(
+                "album.getInfo",
+                artist=artist,
+                album=album,
+            )
+        elif mbid:
+            payload = _lastfm_request("album.getInfo", mbid=mbid)
+        else:
+            return jsonify({
+                "error": "Indica artist y album, o mbid",
+            }), 400
+    except APIException as exc:
+        return jsonify({"error": str(exc)}), exc.status_code
 
-    for path in candidates:
-        try:
-            payload = _reccobeats_request(path)
-            break
-        except APIException as exc:
-            last_error = exc
+    normalized_album = _normalize_lastfm_album(payload.get("album", {}))
+    if not normalized_album or not normalized_album.get("name"):
+        return jsonify({"error": "No se encontró el álbum"}), 404
 
-    if payload is None:
-        if last_error is not None:
-            return jsonify({"error": str(last_error)}), getattr(last_error, "status_code", 502)
-        return jsonify({"error": f"No se pudo obtener el {item_type}"}), 502
-
-    normalized_item = _normalize_reccobeats_item(
-        payload if isinstance(payload, dict) else {}, item_type)
-        
-    return jsonify({item_type: normalized_item}), 200
-
-@api.route("/reccobeats/album/<album_id>", methods=["GET"])
-def reccobeats_album_detail(album_id):
-    return _reccobeats_item_detail("album", album_id)
-
-
-@api.route("/reccobeats/artist/<artist_id>", methods=["GET"])
-def reccobeats_artist_detail(artist_id):
-    return _reccobeats_item_detail("artist", artist_id)
-
-
-@api.route("/reccobeats/item/<item_type>/<item_id>", methods=["GET"])
-def reccobeats_item_detail(item_type, item_id):
-    return _reccobeats_item_detail(item_type, item_id)
+    return jsonify({"album": normalized_album}), 200
 
 
 @api.route("/profile", methods=["GET", "PUT"])

@@ -27,7 +27,7 @@ export const Navbar = () => {
     const query = searchQuery.trim();
     if (!query) {
       setSearchResults([]);
-      setSearchError("Escribe un álbum o artista para buscar");
+      setSearchError("Escribe un álbum para buscar");
       return;
     }
 
@@ -56,10 +56,6 @@ export const Navbar = () => {
 
       <div className="navbar-right">
         <form className="navbar-search" role="search" onSubmit={handleSearch}>
-          <select id="search-type">
-            <option value="album">Álbum</option>
-            <option value="artist">Artista</option>
-          </select>
           <input
             type="search"
             value={searchQuery}
@@ -70,8 +66,8 @@ export const Navbar = () => {
                 setSearchError("");
               }
             }}
-            placeholder="Buscar álbumes o artistas"
-            aria-label="Buscar álbumes o artistas"
+            placeholder="Buscar álbumes"
+            aria-label="Buscar álbumes"
           />
 
           <button type="submit" aria-label="Buscar" disabled={isLoading}>
@@ -85,19 +81,21 @@ export const Navbar = () => {
               ) : null}
 
               {searchResults.map((result) => {
-                const detailPath = result.type === "album"
-                  ? `/album/${encodeURIComponent(result.id || result.name)}`
-                  : `/artist/${encodeURIComponent(result.id || result.name)}`;
+                if (!result.artist || !result.name) {
+                  return null;
+                }
+
+                const detailPath = `/album/${encodeURIComponent(result.artist)}/${encodeURIComponent(result.name)}`;
 
                 return (
                   <Link
-                    key={`${result.type}-${result.id || result.name}`}
+                    key={`${result.artist}-${result.name}`}
                     to={detailPath}
                     className="navbar-search-result"
                     onClick={clearSearch}
                   >
                     <span>{result.name}</span>
-                    <small>{result.type === "album" ? "Álbum" : "Artista"}</small>
+                    <small>Álbum</small>
                   </Link>
                 );
               })}

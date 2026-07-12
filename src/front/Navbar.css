@@ -1,11 +1,11 @@
 .navbar {
   position: absolute;
-  top: 0;
+  top: 0px;
   left: 0;
   right: 0;
   z-index: 10;
-  min-height: 72px;
-  padding: 16px 32px;
+  min-height: 60px;
+  padding: 10px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;

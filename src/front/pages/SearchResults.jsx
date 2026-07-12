@@ -11,14 +11,20 @@ export const SearchResults = () => {
     const [results, setResults] = useState([]);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const [fetchedQuery, setFetchedQuery] = useState("");
 
     useEffect(() => {
         const query = getQueryParam(location.search, "q").trim();
 
         if (!query) {
+            setFetchedQuery("");
             setResults([]);
             setError("Escribe un álbum para comenzar la búsqueda");
             setIsLoading(false);
+            return;
+        }
+
+        if (query === fetchedQuery) {
             return;
         }
 
@@ -28,7 +34,7 @@ export const SearchResults = () => {
                 setError("");
 
                 const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
-                const response = await fetch(`${backendUrl}/api/reccobeats/search?q=${encodeURIComponent(query)}&type=all`);
+                const response = await fetch(`${backendUrl}/api/lastfm/search?q=${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 // 🚨 REVISA ESTO EN LA CONSOLA DE TU NAVEGADOR (F12)
@@ -37,6 +43,8 @@ export const SearchResults = () => {
                 if (!response.ok) {
                     throw new Error(data.error || "No se pudo completar la búsqueda");
                 }
+
+                setFetchedQuery(query);
 
                 // Controlamos si la lista de resultados viene vacía desde el servidor
                 if (data.results && data.results.length > 0) {
@@ -82,13 +90,16 @@ export const SearchResults = () => {
                     gap: "1.5rem"
                 }}>
                     {results.map((result) => {
-                        // Forzamos la redirección al detalle del álbum usando su ID o nombre
-                        const detailPath = `/album/${encodeURIComponent(result.id || result.name)}`;
-                        const fallbackImage = "https://via.placeholder.com/180?text=Sin+Portada";
+                        if (!result.artist || !result.name) {
+                            return null;
+                        }
+                        // Forzamos la redirección al detalle del álbum usando su nombre de álbum y artista
+                        const detailPath = `/album/${encodeURIComponent(result.artist)}/${encodeURIComponent(result.name)}`;
+                        const fallbackImage = "https://static.vecteezy.com/system/resources/thumbnails/052/706/218/small/vibrant-green-cucumber-with-fresh-texture-png.png";
 
                         return (
                             <Link
-                                key={`${result.type}-${result.id || result.name}`}
+                                key={`${result.artist}-${result.name}`}
                                 to={detailPath}
                                 style={{
                                     display: "flex",
@@ -124,6 +135,7 @@ export const SearchResults = () => {
                                 {/* Cuerpo de la tarjeta con la información técnica */}
                                 <div style={{ padding: "0.8rem", display: "flex", flexDirection: "column", flexGrow: 1 }}>
                                     <strong style={{
+                                        color: "black",
                                         fontSize: "0.95rem",
                                         lineHeight: "1.2",
                                         marginBottom: "0.4rem",
@@ -132,6 +144,8 @@ export const SearchResults = () => {
                                         WebkitBoxOrient: "vertical",
                                         overflow: "hidden"
                                     }}>
+
+                                        
                                         {result.name}
                                     </strong>
 
