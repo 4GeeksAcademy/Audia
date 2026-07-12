@@ -1,54 +1,138 @@
-.hero {
-  position: relative;
-  min-height: 420px;
-  padding-top: 64px;
-
-  background-image:
-    linear-gradient(
-      180deg,
-      rgba(8, 18, 38, 0.92) 0%,
-      rgba(8, 18, 38, 0.45) 32%,
-      rgba(8, 18, 38, 0.65) 68%,
-      #192746 100%
-    ),
-    url("assets/img/revolver-img.jpg");
-
-  background-size: cover;
-  background-position: center;
-}
-
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 720px;
-  margin: 72px auto 0;
-  text-align: center;
-  padding: 0 24px;
-}
-
-.hero-content h1 {
-  margin: 0 0 12px;
-  font-size: 52px;
-  line-height: 1;
-}
-
-.hero-content p {
-  margin: 0 auto 18px;
-  max-width: 560px;
-  font-size: 20px;
-  line-height: 1.35;
-}
-
-.hero-button {
-  display: inline-flex;
+.home-hero {
+  min-height: 480px;
+  padding: 80px 32px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
   align-items: center;
-  justify-content: center;
-  background: #98BCFF;
-  color: #112142;
-  text-decoration: none;
-  font-weight: 800;
-  padding: 10px 32px;
-  border-radius: 999px;
+  gap: 50px;
 }
 
+.home-hero-text h1 {
+  max-width: 520px;
+  margin: 0;
+  font-size: 54px;
+  line-height: 1.05;
+  color: white;
+}
+
+.home-hero-text h1 span {
+  display: block;
+  color: #a995ff;
+}
+
+.home-hero-text p {
+  max-width: 430px;
+  margin: 24px 0 32px;
+  color: #c8d0e0;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.home-hero-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.primary-btn,
+.secondary-btn {
+  padding: 14px 24px;
+  border-radius: 18px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.primary-btn {
+  background: #9bb5ff;
+  color: #08152e;
+}
+
+
+.home-hero-art {
+  position: relative;
+  min-height: 380px;
+}
+
+.hero-album {
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.hero-album-left {
+  left: 80px;
+  top: 70px;
+  transform: rotate(-10deg);
+}
+
+.hero-album-main {
+  left: 250px;
+  top: 20px;
+  width: 245px;
+  height: 245px;
+  z-index: 2;
+}
+
+.hero-album-right {
+  left: 450px;
+  top: 80px;
+  transform: rotate(9deg);
+}
+
+.hero-review-card {
+  position: absolute;
+  left: 260px;
+  top: 245px;
+  z-index: 3;
+  width: 310px;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(17, 29, 55, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+}
+
+.hero-review-card strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.hero-review-card span {
+  color: #ffc94a;
+}
+
+.hero-review-card p {
+  margin: 10px 0 0;
+  color: #e5e9f5;
+}
+
+@media (max-width: 900px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    padding-top: 50px;
+  }
+
+  .home-hero-text h1 {
+    font-size: 40px;
+  }
+
+  .home-hero-art {
+    min-height: 430px;
+    transform: scale(0.85);
+    transform-origin: left top;
+  }
+}
+
+.home-hero,
+.album-section .section-header,
+.album-section .album-carousel,
+.review-section .section-header,
+.review-section .review-grid {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}

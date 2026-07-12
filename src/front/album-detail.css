@@ -40,8 +40,8 @@
 
 
 .album-detail-favorite-btn:hover {
-  background: #5c95ff !important;
-  color: #112142 !important;
+  background: #5c95ff;
+  color: #112142;
   opacity: 0.88;
 }
 
@@ -51,8 +51,8 @@
 }
 
 .album-detail-review-btn:hover {
-  background: rgb(46, 46, 46) !important;
-  color: #fff !important;
+  background: rgb(46, 46, 46);
+  color: #fff;
   opacity: 0.88;
 }
 
