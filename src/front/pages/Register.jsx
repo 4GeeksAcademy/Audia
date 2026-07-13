@@ -24,13 +24,7 @@ export const Register = () => {
     setLoading(true);
 
      try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-      if (!backendUrl) {
-        throw new Error("VITE_BACKEND_URL no está configurada");
-      }
-
-      const response = await fetch(`${backendUrl}/api/register`, {
+      const response = await fetch(`/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

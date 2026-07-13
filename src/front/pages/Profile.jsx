@@ -97,7 +97,7 @@ export const Profile = () => {
             setError("");
 
             const backendUrl =
-                import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
+                (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
             const token = localStorage.getItem("token");
             let imageUrl = newImage;
@@ -170,7 +170,7 @@ export const Profile = () => {
         try {
 
             const backendUrl =
-                import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
+                (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
             const token = localStorage.getItem("token");
 
@@ -225,7 +225,7 @@ export const Profile = () => {
 
             try {
                 const backendUrl =
-                    import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
+                    (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
                 const response = await fetch(`${backendUrl}/api/profile`, {
                     headers: {

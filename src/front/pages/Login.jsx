@@ -16,7 +16,7 @@ export const Login = () => {
 
     try {
       const backendUrl =
-        import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
+        (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
       const response = await fetch(`${backendUrl}/api/login`, {
         method: "POST",
