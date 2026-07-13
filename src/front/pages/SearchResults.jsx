@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const getQueryParam = (search, key) => {
     const params = new URLSearchParams(search);
@@ -8,6 +9,7 @@ const getQueryParam = (search, key) => {
 
 export const SearchResults = () => {
     const location = useLocation();
+    const { dispatch } = useGlobalReducer();
     const [results, setResults] = useState([]);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
@@ -23,6 +25,8 @@ export const SearchResults = () => {
             setIsLoading(false);
             return;
         }
+
+        dispatch({ type: "set_last_search_query", payload: query });
 
         if (query === fetchedQuery) {
             return;

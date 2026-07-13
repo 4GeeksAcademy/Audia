@@ -1,97 +1,95 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-const albums = [
-    {
-        title: "With Heaven on Top",
-        artist: "Zach Bryan",
-        year: "2026",
-        genre: "Country",
-        image: "/albums/with-heaven-on-top.jpg",
-    },
-    {
-        title: "Don't Be Dumb",
-        artist: "A$AP Rocky",
-        year: "2026",
-        genre: "Hip-hop",
-        image: "/albums/dont-be-dumb.jpg",
-    },
-    {
-        title: "Octane",
-        artist: "Don Toliver",
-        year: "2026",
-        genre: "R&B",
-        image: "/albums/octane.jpg",
-    },
-    {
-        title: "The Fall-Off",
-        artist: "J. Cole",
-        year: "2026",
-        genre: "Hip-hop",
-        image: "/albums/the-fall-off.jpg",
-    },
-    {
-        title: "Cloud 9",
-        artist: "Megan Moroney",
-        year: "2026",
-        genre: "Country",
-        image: "/albums/cloud-9.jpg",
-    },
-    {
-        title: "Victory",
-        artist: "Madeon",
-        year: "2026",
-        genre: "Electrónica",
-        image: "/albums/victory.jpg",
-    },
-];
+const FALLBACK_IMAGE =
+    "https://static.vecteezy.com/system/resources/thumbnails/052/706/218/small/vibrant-green-cucumber-with-fresh-texture-png.png";
 
+const FEATURED_TAG = "pop";
 
 export const LatestReleases = () => {
-    const [activeGenre, setActiveGenre] = useState("Todos");
+    const [albums, setAlbums] = useState([]);
+    const [featuredTag, setFeaturedTag] = useState(FEATURED_TAG);
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
 
-    const genres = ["Todos", "Pop", "Hip-hop", "Rock", "Alternativo", "Electrónica", "Country", "R&B"];
+    useEffect(() => {
+        const loadFeaturedAlbums = async () => {
+            try {
+                setIsLoading(true);
+                setError("");
 
-    const filteredAlbums =
-        activeGenre === "Todos"
-            ? albums
-            : albums.filter((album) => album.genre === activeGenre);
+                const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+                const params = new URLSearchParams({
+                    tag: FEATURED_TAG,
+                    limit: "12",
+                });
+                const response = await fetch(
+                    `${backendUrl}/api/lastfm/featured-albums?${params.toString()}`
+                );
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "No se pudieron cargar los lanzamientos");
+                }
+
+                setFeaturedTag(data.tag || FEATURED_TAG);
+                setAlbums(data.results || []);
+            } catch (err) {
+                setAlbums([]);
+                setError(err.message || "No se pudieron cargar los lanzamientos");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadFeaturedAlbums();
+    }, []);
+
     return (
         <main className="releases-page">
             <section className="releases-header">
                 <p className="section-eyebrow">Explora música nueva</p>
-                <h1>Últimos lanzamientos</h1>
+                <h1>Lanzamientos destacados</h1>
                 <p>
-                    Descubre álbumes recientes, guarda tus favoritos y lee reseñas de la comunidad.
+                    Los álbumes más populares del tag {featuredTag} según Last.fm.
                 </p>
             </section>
 
-            <section className="release-filters">
-                {genres.map((genre) => (
-                    <button
-                        key={genre}
-                        type="button"
-                        className={activeGenre === genre ? "active" : ""}
-                        onClick={() => setActiveGenre(genre)}
-                    >
-                        {genre}
-                    </button>
-                ))}
-            </section>
-
             <section className="releases-grid">
-                {filteredAlbums.map((album) => (
-                    <a href="#" className="release-card" key={album.title}>
-                        <div className="release-cover">
-                            <img src={album.image} alt={`Portada de ${album.title}`} />
-                        </div>
+                {isLoading ? (
+                    <p>Cargando lanzamientos...</p>
+                ) : error ? (
+                    <p>{error}</p>
+                ) : albums.length === 0 ? (
+                    <p>No hay lanzamientos disponibles.</p>
+                ) : (
+                    albums.map((album) => {
+                        const detailPath = `/album/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.name)}`;
 
-                        <div className="release-card-info">
-                            <h2>{album.title}</h2>
-                            <p>{album.artist}</p>
-                            <span>{album.year} · {album.genre}</span>
-                        </div>
-                    </a>
-                ))}
+                        return (
+                            <Link
+                                to={detailPath}
+                                className="release-card"
+                                key={`${album.artist}-${album.name}`}
+                            >
+                                <div className="release-cover">
+                                    <img
+                                        src={album.cover || FALLBACK_IMAGE}
+                                        alt={`Portada de ${album.name}`}
+                                        onError={(e) => {
+                                            e.target.src = FALLBACK_IMAGE;
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="release-card-info">
+                                    <h2>{album.name}</h2>
+                                    <p>{album.artist}</p>
+                                </div>
+                            </Link>
+                        );
+                    })
+                )}
             </section>
         </main>
     );

@@ -1,95 +1,96 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+const FALLBACK_IMAGE =
+    "https://static.vecteezy.com/system/resources/thumbnails/052/706/218/small/vibrant-green-cucumber-with-fresh-texture-png.png";
+
+const FEATURED_TAG = "pop";
+
 export const Home = () => {
+    const [albums, setAlbums] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  const albums = [
-    {
-      title: "With Heaven on Top",
-      artist: "Zach Bryan",
-      year: "2026",
-      image: "/albums/with-heaven-on-top.jpg",
-    },
-    {
-      title: "Don't Be Dumb",
-      artist: "A$AP Rocky",
-      year: "2026",
-      image: "/albums/dont-be-dumb.jpg",
-    },
-    {
-      title: "Octane",
-      artist: "Don Toliver",
-      year: "2026",
-      image: "/albums/octane.png",
-    },
-    {
-      title: "The Fall-Off",
-      artist: "J. Cole",
-      year: "2026",
-      image: "/albums/the-fall-off.jpg",
-    },
-    {
-      title: "Cloud 9",
-      artist: "Megan Moroney",
-      year: "2026",
-      image: "/albums/cloud-9.jpg",
-    },
-    {
-      title: "Victory",
-      artist: "Madeon",
-      year: "2026",
-      image: "/albums/victory.jpg",
-    },
-    {
-      title: "The Ground Above",
-      artist: "Beth Orton",
-      year: "2026",
-      image: "/albums/the-ground-above.jpg",
-    },
-    {
-      title: "Your Day Will Come",
-      artist: "Chanel Beads",
-      year: "2026",
-      image: "/albums/your-day-will-come.jpg",
-    },
-  ];
+    useEffect(() => {
+        const loadFeaturedAlbums = async () => {
+            try {
+                setIsLoading(true);
 
-  return (
-    <main>
-      <section className="hero">
-        <div className="hero-content">
-          <h2>¡Revolver cumple 60 años!</h2>
-          <p>
-            Celebra el aniversario de este clásico leyendo las reseñas de los usuarios
-          </p>
-          <a href="#" className="hero-button">Ir a las reseñas</a>
-        </div>
-      </section>
+                const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+                const params = new URLSearchParams({
+                    tag: FEATURED_TAG,
+                    limit: "8",
+                });
+                const response = await fetch(
+                    `${backendUrl}/api/lastfm/featured-albums?${params.toString()}`
+                );
+                const data = await response.json();
 
-      <section className="album-section">
-        <div className="section-header">
-          <div id="ulti">
-            <p className="section-eyebrow">Explora la comunidad</p>
-            <h2>Últimos lanzamientos</h2>
-          </div>
+                if (!response.ok) {
+                    throw new Error(data.error || "No se pudieron cargar los lanzamientos");
+                }
 
-          <a href="#">Ver todos</a>
-        </div>
+                setAlbums(data.results || []);
+            } catch (err) {
+                setAlbums([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-        <div className="album-carousel">
-          {albums.map((album) => (
-            <a href={`/album/${album.title}`} className="album-card" key={album.title}>
-              <img src={album.image} alt={`Portada de ${album.title}`} />
+        loadFeaturedAlbums();
+    }, []);
 
-              <div className="album-card-info">
-                <h3>{album.title}</h3>
-                <p>{album.artist}</p>
-                <span>{album.year}</span>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    </main>
-  );
+    return (
+        <main>
+            <section className="hero">
+                <div className="hero-content">
+                    <h2>¡Revolver cumple 60 años!</h2>
+                    <p>
+                        Celebra el aniversario de este clásico leyendo las reseñas de los usuarios
+                    </p>
+                    <a href="#" className="hero-button">Ir a las reseñas</a>
+                </div>
+            </section>
+
+            <section className="album-section">
+                <div className="section-header">
+                    <div id="ulti">
+                        <p className="section-eyebrow">Explora la comunidad</p>
+                        <h2>Lanzamientos destacados</h2>
+                    </div>
+
+                    <Link to="/ultimos-lanzamientos">Ver todos</Link>
+                </div>
+
+                <div className="album-carousel">
+                    {isLoading ? (
+                        <p>Cargando lanzamientos...</p>
+                    ) : albums.length === 0 ? (
+                        <p>No hay lanzamientos disponibles.</p>
+                    ) : (
+                        albums.map((album) => {
+                            const detailPath = `/album/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.name)}`;
+
+                            return (
+                                <Link to={detailPath} className="album-card" key={`${album.artist}-${album.name}`}>
+                                    <img
+                                        src={album.cover || FALLBACK_IMAGE}
+                                        alt={`Portada de ${album.name}`}
+                                        onError={(e) => {
+                                            e.target.src = FALLBACK_IMAGE;
+                                        }}
+                                    />
+
+                                    <div className="album-card-info">
+                                        <h3>{album.name}</h3>
+                                        <p>{album.artist}</p>
+                                    </div>
+                                </Link>
+                            );
+                        })
+                    )}
+                </div>
+            </section>
+        </main>
+    );
 };

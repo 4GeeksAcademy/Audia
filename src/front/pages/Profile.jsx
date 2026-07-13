@@ -1,6 +1,10 @@
 import "../profile.css";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+const FALLBACK_IMAGE =
+    "https://static.vecteezy.com/system/resources/thumbnails/052/706/218/small/vibrant-green-cucumber-with-fresh-texture-png.png";
+
 
 export const Profile = () => {
 
@@ -28,6 +32,9 @@ export const Profile = () => {
     const [newImage, setNewImage] = useState(profileImage);
 
     const [selectedImage, setSelectedImage] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
+    const [reviewsError, setReviewsError] = useState("");
 
     const favoriteAlbums = [
         {
@@ -80,35 +87,6 @@ export const Profile = () => {
         }
     ];
 
-    const reviews = [
-        {
-            id: 1,
-            album: "After Hours",
-            artist: "The Weeknd",
-            rating: "★★★★★",
-            review:
-                "Una producción impecable. Cada canción mantiene una atmósfera increíble.",
-            cover: "https://upload.wikimedia.org/wikipedia/en/c/c1/The_Weeknd_-_After_Hours.png"
-        },
-        {
-            id: 2,
-            album: "Currents",
-            artist: "Tame Impala",
-            rating: "★★★★☆",
-            review:
-                "Uno de los mejores álbumes de rock psicodélico moderno.",
-            cover: "/albums/3.jpg"
-        },
-        {
-            id: 3,
-            album: "Random Access Memories",
-            artist: "Daft Punk",
-            rating: "★★★★★",
-            review:
-                "Un clásico moderno con una producción espectacular.",
-            cover: "/albums/4.png"
-        }
-    ];
     const saveProfile = async () => {
         try {
             setError("");
@@ -223,6 +201,29 @@ export const Profile = () => {
                 setProfileImage(loadedImage);
                 setNewImage(loadedImage);
 
+                try {
+                    const reviewsResponse = await fetch(
+                        `${backendUrl}/api/reviews`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
+
+                    const reviewsData = await reviewsResponse.json();
+
+                    if (!reviewsResponse.ok) {
+                        throw new Error(
+                            reviewsData.error || "No se pudieron cargar las reseñas"
+                        );
+                    }
+
+                    setReviews(reviewsData.reviews || []);
+                } catch (reviewsErr) {
+                    setReviewsError(reviewsErr.message);
+                }
+
             } catch (error) {
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
@@ -230,6 +231,7 @@ export const Profile = () => {
                 navigate("/login");
             } finally {
                 setLoading(false);
+                setReviewsLoading(false);
             }
         };
 
@@ -302,7 +304,7 @@ export const Profile = () => {
 
                                 <div className="col">
 
-                                    <h3>58</h3>
+                                    <h3>{reviews.length}</h3>
 
                                     <span>Reseñas</span>
 
@@ -390,42 +392,53 @@ export const Profile = () => {
 
                     </h2>
 
-                    {reviews.map((review) => (
+                    {reviewsLoading ? (
+                        <p className="profile-status">Cargando reseñas...</p>
+                    ) : reviewsError ? (
+                        <p className="profile-status">{reviewsError}</p>
+                    ) : reviews.length === 0 ? (
+                        <p className="profile-status">
+                            Aún no has publicado reseñas.
+                        </p>
+                    ) : (
+                        reviews.map((review) => {
+                            const reviewPath = `/review?artist=${encodeURIComponent(review.artist)}&album=${encodeURIComponent(review.album)}`;
 
-                        <div
-                            className="review-card"
-                            key={review.id}
-                        >
+                            return (
+                                <Link
+                                    className="review-card"
+                                    key={review.id}
+                                    to={reviewPath}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = "scale(1.03)";
+                                        e.currentTarget.style.boxShadow = "0 5px 15px rgba(0,0,0,0.1)";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = "scale(1)";
+                                        e.currentTarget.style.boxShadow = "0 2px 5px rgba(0,0,0,0.05)";
+                                    }}
+                                >
+                                    <img
+                                        src={review.cover || FALLBACK_IMAGE}
+                                        alt={review.album}
+                                        className="review-cover"
+                                        onError={(e) => {
+                                            e.target.src = FALLBACK_IMAGE;
+                                        }}
+                                    />
 
-                            <img
-                                src={review.cover}
-                                alt={review.album}
-                                className="review-cover"
-                            />
-
-                            <div className="review-info">
-
-                                <h4>{review.album}</h4>
-
-                                <h6>{review.artist}</h6>
-
-                                <p className="stars">
-
-                                    {review.rating}
-
-                                </p>
-
-                                <p>
-
-                                    {review.review}
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    ))}
+                                    <div className="review-info">
+                                        <h4>{review.album}</h4>
+                                        <h6>{review.artist}</h6>
+                                        <p className="stars">
+                                            {"★".repeat(review.rating)}
+                                        </p>
+                                        <p>{review.text}</p>
+                                    </div>
+                                </Link>
+                            );
+                        })
+                    )}
 
                 </div>
 

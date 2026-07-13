@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
-from api.models import db, User
+from api.models import db, User, Review
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
     create_access_token,
@@ -179,6 +179,43 @@ def _normalize_lastfm_results(payload):
     return normalized
 
 
+def _normalize_lastfm_top_albums(payload):
+    # tag.gettopalbums: la lista está en albums.album (no en results.albummatches.album
+    # como album.search) y artist viene como objeto {"name": "..."}, no como string. No reutilizamos _normalize_lastfm_results
+    normalized = []
+
+    items = payload.get("albums", {}).get("album", [])
+    if isinstance(items, dict):
+        items = [items]
+    elif not isinstance(items, list):
+        items = []
+
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+
+        name = (item.get("name") or "").strip()
+        artist_data = item.get("artist")
+        if isinstance(artist_data, dict):
+            artist_name = (artist_data.get("name") or "").strip()
+        else:
+            artist_name = (artist_data or "").strip()
+
+        if not name or not artist_name:
+            continue
+
+        mbid = (item.get("mbid") or "").strip()
+        normalized.append({
+            "mbid": mbid or None,
+            "name": name,
+            "artist": artist_name,
+            "link": item.get("url"),
+            "cover": _lastfm_image_url(item),
+        })
+
+    return normalized
+
+
 # 4. Las rutas usando el decorador del Blueprint
 @api.route("/lastfm/search", methods=["GET"])
 def lastfm_search():
@@ -202,6 +239,29 @@ def lastfm_search():
     return jsonify({
         "query": query,
         "results": _normalize_lastfm_results(payload),
+    }), 200
+
+
+@api.route("/lastfm/featured-albums", methods=["GET"])
+def lastfm_featured_albums():
+    tag = request.args.get("tag", "disco").strip()
+    limit = request.args.get("limit", "12")
+
+    if not tag:
+        return jsonify({"error": "El tag es obligatorio"}), 400
+
+    try:
+        payload = _lastfm_request(
+            "tag.gettopalbums",
+            tag=tag,
+            limit=limit,
+        )
+    except APIException as exc:
+        return jsonify({"error": str(exc)}), exc.status_code
+
+    return jsonify({
+        "tag": tag,
+        "results": _normalize_lastfm_top_albums(payload),
     }), 200
 
 
@@ -233,6 +293,159 @@ def lastfm_album_detail():
 
     return jsonify({"album": normalized_album}), 200
 
+
+@api.route("/reviews", methods=["GET"])
+@jwt_required()
+def get_user_reviews():
+    user_id = int(get_jwt_identity())
+    user = db.session.get(User, user_id)
+
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    reviews = (
+        Review.query
+        .filter_by(user_id=user_id)
+        .order_by(Review.id.desc())
+        .all()
+    )
+
+    reviews_data = []
+    for review in reviews:
+        data = review.serialize()
+        album_id = data["album_id"]
+
+        # album_id puede ser un mbid de Last.fm o "Artista/Álbum"
+        artist = None
+        album = None
+        if "/" in album_id:
+            artist, album = album_id.split("/", 1)
+
+        normalized_album_data = None
+        # Intentamos obtener el álbum de Last.fm con el mbid o "Artista/Álbum"
+        try:
+            if artist and album:
+                payload = _lastfm_request(
+                    "album.getInfo",
+                    artist=artist,
+                    album=album,
+                )
+            else:
+                payload = _lastfm_request("album.getInfo", mbid=album_id)
+
+            # Normalizamos los datos del álbum de Last.fm
+            normalized_album_data = _normalize_lastfm_album(payload.get("album", {}))
+        except APIException:
+            pass
+        # Agregamos los datos del álbum de Last.fm a la respuesta
+        data["album"] = (normalized_album_data or {}).get("name") or album or album_id
+        data["artist"] = (normalized_album_data or {}).get("artist") or artist or "Desconocido"
+        data["cover"] = (normalized_album_data or {}).get("cover")
+        reviews_data.append(data)
+
+    return jsonify({"reviews": reviews_data}), 200
+
+
+@api.route("/reviews/album", methods=["GET"])
+def get_album_reviews():
+    album_id = request.args.get("album_id", "").strip()
+    if not album_id:
+        return jsonify({"error": "El álbum es obligatorio"}), 400
+
+    reviews = (
+        Review.query
+        .filter_by(album_id=album_id)
+        .order_by(Review.id.desc())
+        .all()
+    )
+
+    return jsonify({
+        "reviews": [review.serialize() for review in reviews],
+    }), 200
+
+
+@api.route("/review", methods=["GET", "POST", "PUT"])
+@jwt_required(optional=True)
+def review():
+    if request.method == "GET":
+        album_id = request.args.get("album_id", "").strip()
+        if not album_id:
+            return jsonify({"error": "El álbum es obligatorio"}), 400
+            
+        # Si se proporciona user_id, se obtiene la reseña del usuario especificado,
+        # sino, se obtiene la reseña del usuario autenticado
+        requested_user_id = request.args.get("user_id", "").strip()
+        if requested_user_id:
+            user_id = int(requested_user_id)
+        else:
+            jwt_user = get_jwt_identity()
+            if not jwt_user:
+                return jsonify({"error": "No autorizado"}), 401
+            user_id = int(jwt_user)
+
+        existing_review = Review.query.filter_by(
+            album_id=album_id,
+            user_id=user_id,
+        ).first()
+
+        if not existing_review:
+            return jsonify({"review": None}), 200
+
+        return jsonify({"review": existing_review.serialize()}), 200
+
+    jwt_user = get_jwt_identity()
+    if not jwt_user:
+        return jsonify({"error": "No autorizado"}), 401
+
+    user_id = int(jwt_user)
+    user = db.session.get(User, user_id)
+
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    data = request.get_json()
+    review_text = data.get("review", "")
+    rating = data.get("rating", None)
+    album_id = data.get("album_id", None)
+
+    if not review_text or not rating:
+        return jsonify({"error": "La reseña y el puntaje son obligatorios"}), 400
+    if not album_id:
+        return jsonify({"error": "El álbum es obligatorio"}), 400
+
+    if request.method == "PUT":
+        existing_review = Review.query.filter_by(album_id=album_id, user_id=user_id).first()
+        if not existing_review:
+            return jsonify({"error": "No tienes una reseña para este álbum"}), 404
+        try:
+            existing_review.text = review_text
+            existing_review.rating = rating
+            db.session.commit()
+
+            return jsonify({"review": existing_review.serialize()}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    if request.method == "POST":
+        existing_review = Review.query.filter_by(album_id=album_id, user_id=user_id).first()
+        if existing_review:
+            return jsonify({"error": "Ya has reseñado este álbum"}), 400
+        try:
+            new_review = Review(
+                text=review_text,
+                rating=rating,
+                album_id=album_id,
+                user_id=user_id
+            )
+
+            db.session.add(new_review)
+            db.session.commit()
+
+            return jsonify({"review": new_review.serialize()}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
 
 @api.route("/profile", methods=["GET", "PUT"])
 @jwt_required()

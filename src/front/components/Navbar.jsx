@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { dispatch } = useGlobalReducer();
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -34,6 +36,7 @@ export const Navbar = () => {
     setIsLoading(true);
     setSearchError("");
     setSearchResults([]);
+    dispatch({ type: "set_last_search_query", payload: query });
     navigate(`/search?q=${encodeURIComponent(query)}`);
     setIsLoading(false);
   };
@@ -104,7 +107,7 @@ export const Navbar = () => {
         </form>
 
         <nav>
-          <Link to="/ultimos-lanzamientos">Últimos lanzamientos</Link>
+          <Link to="/ultimos-lanzamientos">Lanzamientos destacados</Link>
           <Link to="/generos">Géneros</Link>
           <Link to="/random-pick">Random Pick</Link>
           <Link to="/review">Reseñas</Link>

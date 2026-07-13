@@ -1,6 +1,7 @@
 export const initialStore=()=>{
   return{
     message: null,
+    lastSearchQuery: null,
     todos: [
       {
         id: 1,
@@ -24,6 +25,12 @@ export default function storeReducer(store, action = {}) {
         message: action.payload
       };
       
+    case 'set_last_search_query':
+      return {
+        ...store,
+        lastSearchQuery: action.payload
+      };
+
     case 'add_task':
 
       const { id,  color } = action.payload
