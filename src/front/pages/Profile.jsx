@@ -468,7 +468,7 @@ export const Profile = () => {
 
                             return (
                                 <Link
-                                    className="review-card"
+                                    className="profile-review-card"
                                     key={review.id}
                                     to={reviewPath}
                                     onMouseEnter={(e) => {
@@ -483,16 +483,16 @@ export const Profile = () => {
                                     <img
                                         src={review.cover || FALLBACK_IMAGE}
                                         alt={review.album}
-                                        className="review-cover"
+                                        className="profile-review-cover"
                                         onError={(e) => {
                                             e.target.src = FALLBACK_IMAGE;
                                         }}
                                     />
 
-                                    <div className="review-info">
+                                    <div className="profile-review-info">
                                         <h4>{review.album}</h4>
                                         <h6>{review.artist}</h6>
-                                        <p className="stars">
+                                        <p className="profile-review-stars">
                                             {"★".repeat(review.rating)}
                                         </p>
                                         <p>{review.text}</p>
