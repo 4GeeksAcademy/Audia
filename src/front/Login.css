@@ -2,7 +2,7 @@
   min-height: calc(100vh - 64px);
   background:
     radial-gradient(circle at top left, rgba(157, 181, 255, 0.14), transparent 32%),
-    linear-gradient(180deg, #081226 0%, #102040 34%, #102040 100%);
+    linear-gradient(180deg, #081226 0%, #071225 34%, #102040 100%);
   display: flex;
   align-items: center;
   justify-content: center;

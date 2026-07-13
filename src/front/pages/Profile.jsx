@@ -36,6 +36,11 @@ export const Profile = () => {
     const [reviewsLoading, setReviewsLoading] = useState(true);
     const [reviewsError, setReviewsError] = useState("");
 
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [confirmCurrentPassword, setConfirmCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [passwordMessage, setPasswordMessage] = useState("");
+
     const favoriteAlbums = [
         {
             id: 1,
@@ -158,6 +163,55 @@ export const Profile = () => {
         } catch (error) {
             setError(error.message);
         }
+    };
+
+    const changePassword = async () => {
+
+        try {
+
+            const backendUrl =
+                import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
+
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `${backendUrl}/api/change-password`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+
+                        current_password: currentPassword,
+                        confirm_password: confirmCurrentPassword,
+                        new_password: newPassword
+
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(data.error);
+
+            }
+
+            setPasswordMessage("Contraseña actualizada correctamente.");
+
+            setCurrentPassword("");
+            setConfirmCurrentPassword("");
+            setNewPassword("");
+
+        } catch (error) {
+
+            setPasswordMessage(error.message);
+
+        }
+
     };
 
     useEffect(() => {
@@ -290,6 +344,14 @@ export const Profile = () => {
                                 data-bs-target="#editProfileModal"
                             >
                                 Editar Perfil
+                            </button>
+
+                            <button
+                                className="change-password-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#changePasswordModal"
+                            >
+                                Cambiar contraseña
                             </button>
 
                             <button
@@ -534,6 +596,106 @@ export const Profile = () => {
 
                 </div>
 
+            </div>
+            <div
+                className="modal fade"
+                id="changePasswordModal"
+                tabIndex="-1"
+                aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+
+                        <div className="modal-header">
+                            <h5 className="modal-title">
+                                Cambiar contraseña
+                            </h5>
+
+                            <button
+                                type="button"
+                                className="btn-close"
+                            ></button>
+                        </div>
+
+                        <div className="modal-body">
+
+                            <p className="password-info">
+                                Para proteger tu cuenta, confirma dos veces tu contraseña actual antes de establecer una nueva.
+                            </p>
+
+                            <label>Contraseña actual</label>
+
+                            <input
+                                type="password"
+                                className="form-control mb-3"
+                                placeholder="Contraseña actual"
+                                value={currentPassword}
+                                onChange={(e) =>
+                                    setCurrentPassword(e.target.value)
+                                }
+                            />
+
+                            <label>Confirmar contraseña actual</label>
+
+                            <input
+                                type="password"
+                                className="form-control mb-3"
+                                placeholder="Repite tu contraseña actual"
+                                value={confirmCurrentPassword}
+                                onChange={(e) =>
+                                    setConfirmCurrentPassword(e.target.value)
+                                }
+                            />
+
+                            <label>Nueva contraseña</label>
+
+                            <input
+                                type="password"
+                                className="form-control"
+                                placeholder="Nueva contraseña"
+                                value={newPassword}
+                                onChange={(e) =>
+                                    setNewPassword(e.target.value)
+                                }
+                            />
+
+                            <p className="forgot-password-text mt-4">
+                                ¿Olvidaste tu contraseña?
+                            </p>
+
+                            <button
+                                type="button"
+                                className="forgot-password-btn"
+                            >
+                                Enviar código al correo
+                            </button>
+
+                        </div>
+
+                        <div className="modal-footer">
+
+                            <button
+                                className="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                className="btn btn-primary"
+                                onClick={changePassword}
+                            >
+                                Guardar contraseña
+                            </button>
+                            {passwordMessage && (
+                                <p className="text-center mt-3">
+                                    {passwordMessage}
+                                </p>
+                            )}
+
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -6,10 +6,13 @@
 @import "./CarruseldeAlbum.css";
 @import "./latest-releases.css";
 @import "./album-detail.css";
+@import "./review.css";
 
 body {
   margin: 0;
-  background: #102040;
+   background:
+    #071225;
   color: white;
   font-family: Arial, sans-serif;
 }
+
