@@ -108,9 +108,7 @@ export const Navbar = () => {
 
         <nav>
           <Link to="/ultimos-lanzamientos">Lanzamientos destacados</Link>
-          <Link to="/generos">Géneros</Link>
-          <Link to="/random-pick">Random Pick</Link>
-          <Link to="/review">Reseñas</Link>
+          
         </nav>
 
         <Link

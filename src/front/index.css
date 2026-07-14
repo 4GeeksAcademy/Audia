@@ -10,9 +10,25 @@
 
 body {
   margin: 0;
-   background:
-    #071225;
-  color: white;
+  background: var(--bg-main);
+  color: var(--text-main);
+
   font-family: Arial, sans-serif;
 }
 
+:root {
+  --bg-main: #071225;
+  --bg-section: #0b1629;
+  --bg-card: #121d33;
+  --bg-card-soft: rgba(255, 255, 255, 0.06);
+
+  --text-main: #ffffff;
+  --text-muted: #c8d0e0;
+  --text-soft: #98a6c2;
+
+  --accent: #9db5ff;
+  --accent-purple: #a995ff;
+  --star: #ffc94a;
+
+  --border-soft: rgba(255, 255, 255, 0.08);
+}

@@ -93,3 +93,77 @@
   background: #121d33 !important;
   width: auto;
 }
+
+.review-page {
+  max-width: 1180px;
+  margin: 60px auto 0;
+  color: var(--text-main);
+}
+
+.audia-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+.audia-textarea {
+  background: #18243a !important;
+  color: white !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 14px;
+  min-height: 220px;
+}
+
+.audia-textarea::placeholder {
+  color: var(--text-soft);
+}
+
+.audia-primary-btn {
+  background: var(--accent) !important;
+  color: #071225 !important;
+  border: none !important;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.audia-secondary-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.review-page {
+  max-width: 1180px;
+  margin: 60px auto 0;
+  padding: 24px 32px 72px;
+  color: var(--text-main);
+}
+
+.review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) 420px;
+  gap: 32px;
+  align-items: start;
+}
+
+.review-form-column,
+.review-album-column {
+  min-width: 0;
+}
+
+.audia-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+@media (max-width: 900px) {
+  .review-layout {
+    grid-template-columns: 1fr;
+  }
+}
