@@ -227,259 +227,257 @@ const Review = () => {
         : null;
 
     return (
-        <div className="container py-5">
-            <div className="row g-4 align-items-start">
-                <div className="col-lg-7">
-                    <div className="shadow-sm border-0" style={{ backgroundColor: "transparent" }}>
-                        <div className="p-4">
-                            {isLoadingReview ? (
-                                <p className="text-white">Cargando reseña...</p>
-                            ) : userReview && externalUserId && externalUserId !== authenticatedUserId ? (
-                                <>
-                                    <h2 className="h3 mb-2">
-                                        Reseña de {userReview.user?.display_name || userReview.user?.username || "Usuario"}
-                                    </h2>
-                                    <div className="mb-4">
-                                        <label className="form-label fw-semibold">Calificación</label>
-                                        <div className="d-flex gap-2 flex-wrap">
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <span
-                                                    key={star}
-                                                    style={{ minWidth: "42px", color: userReview.rating >= star ? "#ffd700" : "#666" }}
-                                                >
-                                                    <i className={`fa${userReview.rating >= star ? "s" : "r"} fa-star`}></i>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="mb-4">
-                                        <label className="form-label fw-semibold">Reseña</label>
-                                        <div
-                                            className="form-control"
-                                            style={{ backgroundColor: "#98BCFF", color: "#000", borderColor: "#98BCFF", whiteSpace: "pre-wrap", lineHeight: 1.6, minHeight: "12rem" }}
-                                        >
-                                            {userReview.text}
-                                        </div>
-                                    </div>
-                                    <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
-                                        {albumDetailLink ? (
-                                            <Link
-                                                to={albumDetailLink}
-                                                className="btn px-4"
-                                                style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
+        <div className="review-page">
+            <div className="review-layout">
+                <div className="review-form-column">
+                    <div className="audia-panel">
+                        {isLoadingReview ? (
+                            <p className="text-white">Cargando reseña...</p>
+                        ) : userReview && externalUserId && externalUserId !== authenticatedUserId ? (
+                            <>
+                                <h2 className="h3 mb-2">
+                                    Reseña de {userReview.user?.display_name || userReview.user?.username || "Usuario"}
+                                </h2>
+                                <div className="mb-4">
+                                    <label className="form-label fw-semibold">Calificación</label>
+                                    <div className="d-flex gap-2 flex-wrap">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <span
+                                                key={star}
+                                                style={{ minWidth: "42px", color: userReview.rating >= star ? "#ffd700" : "#666" }}
                                             >
-                                                Volver a la información del álbum
-                                            </Link>
-                                        ) : null}
-                                        {artist && album ? (
-                                            <Link
-                                                to={`/review?artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}`}
-                                                className="btn px-4"
-                                                style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
-                                            >
-                                                Crear tu propia reseña
-                                            </Link>
-                                        ) : null}
+                                                <i className={`fa${userReview.rating >= star ? "s" : "r"} fa-star`}></i>
+                                            </span>
+                                        ))}
                                     </div>
-                                </>
-                            ) : userReview && !isEditing ? (
-                                <>
-                                    <h2 className="h3 mb-2">Tu reseña</h2>
-                                    <div className="mb-4">
-                                        <label className="form-label fw-semibold">Calificación</label>
-                                        <div className="d-flex gap-2 flex-wrap">
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <span
-                                                    key={star}
-                                                    style={{ minWidth: "42px", color: userReview.rating >= star ? "#ffd700" : "#666" }}
-                                                >
-                                                    <i className={`fa${userReview.rating >= star ? "s" : "r"} fa-star`}></i>
-                                                </span>
-                                            ))}
-                                        </div>
+                                </div>
+                                <div className="mb-4">
+                                    <label className="form-label fw-semibold">Reseña</label>
+                                    <div
+                                        className="form-control"
+                                        style={{ backgroundColor: "#98BCFF", color: "#000", borderColor: "#98BCFF", whiteSpace: "pre-wrap", lineHeight: 1.6, minHeight: "12rem" }}
+                                    >
+                                        {userReview.text}
                                     </div>
-                                    <div className="mb-4">
-                                        <label className="form-label fw-semibold">
-                                            Tu reseña
-                                        </label>
-                                        <div
-                                            className="form-control"
-                                            style={{ backgroundColor: "#98BCFF", color: "#000", borderColor: "#98BCFF", whiteSpace: "pre-wrap", lineHeight: 1.6, minHeight: "12rem" }}
-                                        >
-                                            {userReview.text}
-                                        </div>
-                                    </div>
-                                    <div className="d-flex flex-column align-items-start gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={handleEditReview}
+                                </div>
+                                <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                    {albumDetailLink ? (
+                                        <Link
+                                            to={albumDetailLink}
                                             className="btn px-4"
                                             style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
                                         >
-                                            Editar reseña
-                                        </button>
-                                        {albumDetailLink ? (
-                                            <Link
-                                                to={albumDetailLink}
-                                                className="btn px-4"
-                                                style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
-                                            >
-                                                Volver a la información del álbum
-                                            </Link>
-                                        ) : null}
-                                    </div>
-                                </>
-                            ) : userReview && isEditing ? (
-                                <div className="">
-                                    <h2 className="h3 mb-2">Editar tu reseña</h2>
-                                    <p className="text-white mb-4">
-                                        {albumData
-                                            ? `Actualiza tu opinión sobre “${albumData.name}” de ${albumData.artist}.`
-                                            : "Actualiza tu opinión sobre este álbum."}
-                                    </p>
-
-                                    <div className="mb-4">
-                                        <label className="form-label fw-semibold">Calificación</label>
-                                        <div className="d-flex gap-2 flex-wrap">
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <button
-                                                    key={star}
-                                                    type="button"
-                                                    className={`btn btn-sm ${rating >= star ? "btn-primary" : "btn-outline-primary"}`}
-                                                    onClick={() => setRating(star)}
-                                                    aria-label={`Calificar con ${star} estrellas`}
-                                                    style={{ minWidth: "42px", backgroundColor: rating >= star ? "#0d3b66" : "transparent", borderColor: "#0d3b66", color: rating >= star ? "#fff" : "#0d3b66" }}
-                                                >
-                                                    <i className={`fa${rating >= star ? "s" : "r"} fa-star`}></i>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="mb-4">
-                                        <label htmlFor="reviewText" className="form-label fw-semibold">
-                                            Tu reseña
-                                        </label>
-                                        <textarea
-                                            id="reviewText"
-                                            className="form-control"
-                                            rows="8"
-                                            value={review}
-                                            onChange={(e) => setReview(e.target.value)}
-                                            placeholder="Escribe aquí tu opinión sobre el álbum..."
-                                            style={{ backgroundColor: "#98BCFF", color: "#000", borderColor: "#98BCFF" }}
-                                        />
-                                    </div>
-
-                                    <div className="d-flex flex-column align-items-start gap-2">
-                                        <button
-                                            type="submit"
-                                            disabled={isSubmitting}
-                                            onClick={(e) => handleUpdateReview(e)}
+                                            Volver a la información del álbum
+                                        </Link>
+                                    ) : null}
+                                    {artist && album ? (
+                                        <Link
+                                            to={`/review?artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}`}
                                             className="btn px-4"
                                             style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
                                         >
-                                            {isSubmitting ? "Guardando cambios..." : "Guardar cambios"}
-                                        </button>
-                                        {albumDetailLink ? (
-                                            <Link
-                                                to={albumDetailLink}
-                                                className="btn px-4"
-                                                style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
-                                            >
-                                                Volver a la información del álbum
-                                            </Link>
-                                        ) : null}
-                                    </div>
-                                    {submitError && <p className="text-danger mt-3 mb-0">{submitError}</p>}
+                                            Crear tu propia reseña
+                                        </Link>
+                                    ) : null}
                                 </div>
-                            ) : externalUserId && externalUserId !== authenticatedUserId ? (
-                                <>
-                                    <p className="text-white mb-4">No se encontró la reseña.</p>
-                                    <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
-                                        {albumDetailLink ? (
-                                            <Link
-                                                to={albumDetailLink}
-                                                className="btn px-4"
-                                                style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
+                            </>
+                        ) : userReview && !isEditing ? (
+                            <>
+                                <h2 className="h3 mb-2">Tu reseña</h2>
+                                <div className="mb-4">
+                                    <label className="form-label fw-semibold">Calificación</label>
+                                    <div className="d-flex gap-2 flex-wrap">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <span
+                                                key={star}
+                                                style={{ minWidth: "42px", color: userReview.rating >= star ? "#ffd700" : "#666" }}
                                             >
-                                                Volver a la información del álbum
-                                            </Link>
-                                        ) : null}
-                                        {artist && album ? (
-                                            <Link
-                                                to={`/review?artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}`}
-                                                className="btn px-4"
-                                                style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
-                                            >
-                                                Crear tu propia reseña
-                                            </Link>
-                                        ) : null}
+                                                <i className={`fa${userReview.rating >= star ? "s" : "r"} fa-star`}></i>
+                                            </span>
+                                        ))}
                                     </div>
-                                </>
-                            ) : !isLoadingReview && (
-                                <div className="">
-                                            <h2 className="h3 mb-2">Escribir una reseña</h2>
-                                            <p className="text-white mb-4">
-                                                {albumData
-                                                    ? `Comparte tu opinión sobre “${albumData.name}” de ${albumData.artist}.`
-                                                    : "Comparte tu opinión sobre este álbum y ayuda a otros oyentes."}
-                                            </p>
-
-                                            <div className="mb-4">
-                                                <label className="form-label fw-semibold">Calificación</label>
-                                                <div className="d-flex gap-2 flex-wrap">
-                                                    {[1, 2, 3, 4, 5].map((star) => (
-                                                        <button
-                                                            key={star}
-                                                            type="button"
-                                                            className={`btn btn-sm ${rating >= star ? "btn-primary" : "btn-outline-primary"}`}
-                                                            onClick={() => setRating(star)}
-                                                            aria-label={`Calificar con ${star} estrellas`}
-                                                            style={{ minWidth: "42px", backgroundColor: rating >= star ? "#0d3b66" : "transparent", borderColor: "#0d3b66", color: rating >= star ? "#fff" : "#0d3b66" }}
-                                                        >
-                                                            <i className={`fa${rating >= star ? "s" : "r"} fa-star`}></i>
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="mb-4">
-                                                <label htmlFor="reviewText" className="form-label fw-semibold">
-                                                    Tu reseña
-                                                </label>
-                                                <textarea
-                                                    id="reviewText"
-                                                    className="form-control"
-                                                    rows="8"
-                                                    value={review}
-                                                    onChange={(e) => setReview(e.target.value)}
-                                                    placeholder="Escribe aquí tu opinión sobre el álbum..."
-                                                    style={{ backgroundColor: "#98BCFF", color: "#000", borderColor: "#98BCFF" }}
-                                                />
-                                            </div>
-
-                                            <div className="d-flex flex-column align-items-start gap-2">
-                                                <button type="submit" disabled={isSubmitting} onClick={(e) => handleCreateReview(e)} className="btn px-4" style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}>
-                                                    {isSubmitting ? "Publicando reseña..." : "Publicar reseña"}
-                                                </button>
-                                                {albumDetailLink ? (
-                                                    <Link
-                                                        to={albumDetailLink}
-                                                        className="btn px-4"
-                                                        style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
-                                                    >
-                                                        Volver a la información del álbum
-                                                    </Link>
-                                                ) : null}
-                                            </div>
-                                            {submitError && <p className="text-danger mt-3 mb-0">{submitError}</p>}
                                 </div>
-                            )}
-                        </div>
+                                <div className="mb-4">
+                                    <label className="form-label fw-semibold">
+                                        Tu reseña
+                                    </label>
+                                    <div
+                                        className="form-control"
+                                        style={{ backgroundColor: "#98BCFF", color: "#000", borderColor: "#98BCFF", whiteSpace: "pre-wrap", lineHeight: 1.6, minHeight: "12rem" }}
+                                    >
+                                        {userReview.text}
+                                    </div>
+                                </div>
+                                <div className="d-flex flex-column align-items-start gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleEditReview}
+                                        className="btn px-4"
+                                        style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
+                                    >
+                                        Editar reseña
+                                    </button>
+                                    {albumDetailLink ? (
+                                        <Link
+                                            to={albumDetailLink}
+                                            className="btn px-4"
+                                            style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
+                                        >
+                                            Volver a la información del álbum
+                                        </Link>
+                                    ) : null}
+                                </div>
+                            </>
+                        ) : userReview && isEditing ? (
+                            <div className="">
+                                <h2 className="h3 mb-2">Editar tu reseña</h2>
+                                <p className="text-white mb-4">
+                                    {albumData
+                                        ? `Actualiza tu opinión sobre “${albumData.name}” de ${albumData.artist}.`
+                                        : "Actualiza tu opinión sobre este álbum."}
+                                </p>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-semibold">Calificación</label>
+                                    <div className="d-flex gap-2 flex-wrap">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                className={`review-star-btn ${rating >= star ? "active" : ""}`}
+                                                onClick={() => setRating(star)}
+                                                aria-label={`Calificar con ${star} estrellas`}
+                                            >
+                                                <i className={`fa${rating >= star ? "s" : "r"} fa-star`}></i>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="reviewText" className="form-label fw-semibold">
+                                        Tu reseña
+                                    </label>
+                                    <textarea
+                                        id="reviewText"
+                                        className="form-control"
+                                        rows="8"
+                                        value={review}
+                                        onChange={(e) => setReview(e.target.value)}
+                                        placeholder="Escribe aquí tu opinión sobre el álbum..."
+                                    />
+                                </div>
+
+                                <div className="d-flex flex-column align-items-start gap-2">
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        onClick={(e) => handleUpdateReview(e)}
+                                        className="btn audia-primary-btn px-4"
+                                    >
+                                        {isSubmitting ? "Guardando cambios..." : "Guardar cambios"}
+                                    </button>
+                                    {albumDetailLink ? (
+                                        <Link
+                                            to={albumDetailLink}
+                                            className="btn audia-secondary-btn px-4"
+                                        >
+                                            Volver a la información del álbum
+                                        </Link>
+                                    ) : null}
+                                </div>
+                                {submitError && <p className="text-danger mt-3 mb-0">{submitError}</p>}
+                            </div>
+                        ) : externalUserId && externalUserId !== authenticatedUserId ? (
+                            <>
+                                <p className="text-white mb-4">No se encontró la reseña.</p>
+                                <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                    {albumDetailLink ? (
+                                        <Link
+                                            to={albumDetailLink}
+                                            className="btn px-4"
+                                            style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
+                                        >
+                                            Volver a la información del álbum
+                                        </Link>
+                                    ) : null}
+                                    {artist && album ? (
+                                        <Link
+                                            to={`/review?artist=${encodeURIComponent(artist)}&album=${encodeURIComponent(album)}`}
+                                            className="btn px-4"
+                                            style={{ backgroundColor: "#0d3b66", color: "#fff", borderColor: "#0d3b66" }}
+                                        >
+                                            Crear tu propia reseña
+                                        </Link>
+                                    ) : null}
+                                </div>
+                            </>
+                        ) : !isLoadingReview && (
+                            <div className="">
+                                <h2 className="h3 mb-2">Escribir una reseña</h2>
+                                <p className="text-white mb-4">
+                                    {albumData
+                                        ? `Comparte tu opinión sobre “${albumData.name}” de ${albumData.artist}.`
+                                        : "Comparte tu opinión sobre este álbum y ayuda a otros oyentes."}
+                                </p>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-semibold">Calificación</label>
+                                    <div className="d-flex gap-2 flex-wrap">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                className={`btn btn-sm ${rating >= star ? "btn-primary" : "btn-outline-primary"}`}
+                                                onClick={() => setRating(star)}
+                                                aria-label={`Calificar con ${star} estrellas`}
+                                                style={{ minWidth: "42px", backgroundColor: rating >= star ? "#0d3b66" : "transparent", borderColor: "#0d3b66", color: rating >= star ? "#fff" : "#0d3b66" }}
+                                            >
+                                                <i className={`fa${rating >= star ? "s" : "r"} fa-star`}></i>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="reviewText" className="form-label fw-semibold">
+                                        Tu reseña
+                                    </label>
+                                    <textarea
+                                        id="reviewText"
+                                        className="form-control audia-textarea"
+                                        rows="8"
+                                        value={review}
+                                        onChange={(e) => setReview(e.target.value)}
+                                        placeholder="Escribe aquí tu opinión sobre el álbum..."
+                                    />
+                                </div>
+
+                                <div className="d-flex flex-column align-items-start gap-2">
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        onClick={(e) => handleCreateReview(e)}
+                                        className="btn audia-primary-btn px-4"
+                                    >
+                                        {isSubmitting ? "Publicando reseña..." : "Publicar reseña"}
+                                    </button>
+                                    {albumDetailLink ? (
+                                        <Link
+                                            to={albumDetailLink}
+                                            className="btn audia-secondary-btn px-4"
+                                        >
+                                            Volver a la información del álbum
+                                        </Link>
+                                    ) : null}
+                                </div>
+                                {submitError && <p className="text-danger mt-3 mb-0">{submitError}</p>}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                <div className="col-lg-5">
-                    <div className="h-100 p-4 rounded-4" style={{ backgroundColor: "transparent" }}>
+
+                <div className="review-album-column">
+                    <div className="audia-panel p-4">
                         {isLoading ? (
                             <p className="text-white">Cargando álbum...</p>
                         ) : error || !albumData ? (
@@ -492,22 +490,36 @@ const Review = () => {
                                     src={albumData.cover || FALLBACK_IMAGE}
                                     alt={albumData.name}
                                     className="rounded w-100 mb-3 border"
-                                    style={{ borderColor: "#cfe2ff" }}
                                 />
 
-                                <h3 className="h4 mb-2 text-white"><strong>{albumData.name}</strong></h3>
-                                <p className="text-white mb-1">Artista: {albumData.artist}</p>
+                                <h3 className="h4 mb-2 text-white">
+                                    <strong>{albumData.name}</strong>
+                                </h3>
+
+                                <p className="text-white mb-1">
+                                    Artista: {albumData.artist}
+                                </p>
+
                                 <p className="small text-light mb-3">
-                                   Tags: {tagsLabel}{trackCount ? ` · ${trackCount} canciones` : ""}
+                                    Tags: {tagsLabel}
+                                    {trackCount ? ` · ${trackCount} canciones` : ""}
                                 </p>
 
                                 <ul className="list-group list-group-flush">
                                     {trackCount ? (
-                                        <li className="list-group-item px-0 bg-transparent text-white">Canciones: {trackCount}</li>
+                                        <li className="list-group-item px-0 bg-transparent text-white">
+                                            Canciones: {trackCount}
+                                        </li>
                                     ) : null}
+
                                     {albumData.link ? (
                                         <li className="list-group-item px-0 bg-transparent text-white">
-                                            <Link to={albumData.link} target="_blank" rel="noreferrer" className="btn btn-light">
+                                            <Link
+                                                to={albumData.link}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="btn audia-primary-btn"
+                                            >
                                                 Ver en Last.fm
                                             </Link>
                                         </li>
