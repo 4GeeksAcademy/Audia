@@ -329,7 +329,7 @@ export const Profile = () => {
                                 Cerrar sesión
                             </button>
 
-                            <div className="row text-center mt-4">
+                            <div className="row text-center mt-4 profile-stats">
 
                                 <div className="col">
 
@@ -340,19 +340,8 @@ export const Profile = () => {
                                 </div>
 
                                 <div className="col">
-
-                                    <h3>136</h3>
-
-                                    <span>Seguidores</span>
-
-                                </div>
-
-                                <div className="col">
-
-                                    <h3>94</h3>
-
-                                    <span>Siguiendo</span>
-
+                                    <h3>0</h3>
+                                    <span>Favoritos</span>
                                 </div>
 
                             </div>
