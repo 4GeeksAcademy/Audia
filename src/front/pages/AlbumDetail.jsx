@@ -199,7 +199,7 @@ export const AlbumDetail = () => {
                                             <div className="card-body p-3">
                                                 <div className="d-flex justify-content-between align-items-center gap-2 mb-2">
                                                     <div className="flex-grow-1 overflow-hidden">
-                                                        <span className="fw-bold text-truncate d-block">{authorName}</span>
+                                                        <span className="fw-bold text-truncate text-black d-block">{authorName}</span>
                                                     </div>
                                                     <div className="d-flex flex-shrink-0 gap-1 small">
                                                         {[1, 2, 3, 4, 5].map((star) => (
@@ -212,7 +212,7 @@ export const AlbumDetail = () => {
                                                         ))}
                                                     </div>
                                                 </div>
-                                                <p className="card-text small mb-0 line-clamp-3 text-break">{albumReview.text}</p>
+                                                <p className="card-text small mb-0 line-clamp-3 text-break text-black">{albumReview.text}</p>
                                             </div>
                                         </Link>
                                     );
