@@ -6,71 +6,59 @@ const FALLBACK_IMAGE =
 
 const FEATURED_TAG = "pop";
 
-const popularReviews = [
-    {
-        user: "sofiamusic",
-        rating: "★★★★★",
-        text: "Petals es un susurro hermoso. Ariana muestra una vulnerabilidad que nunca habíamos visto antes.",
-        album: "Petals",
-        artist: "Ariana Grande",
-        image: "/albums/petals.jpg",
-        likes: 32,
-        comments: 4,
-    },
-    {
-        user: "andresbeatz",
-        rating: "★★★★★",
-        text: "Octane tiene ese sonido oscuro que te atrapa desde el primer segundo.",
-        album: "Octane",
-        artist: "Don Toliver",
-        image: "/albums/octane.png",
-        likes: 28,
-        comments: 3,
-    },
-    {
-        user: "mel_0_0",
-        rating: "★★★★☆",
-        text: "Uno de los mejores trabajos de J. Cole. Crudo, honesto y necesario.",
-        album: "The Fall-Off",
-        artist: "J. Cole",
-        image: "/albums/the-fall-off.jpg",
-        likes: 25,
-        comments: 6,
-    },
-];
+
 
 export const Home = () => {
+    const [recentReviews, setRecentReviews] = useState([]);
     const [featuredAlbums, setFeaturedAlbums] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const loadFeaturedAlbums = async () => {
+        const loadHome = async () => {
             try {
                 setIsLoading(true);
 
                 const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+
+                // =====================
+                // Álbumes destacados
+                // =====================
                 const params = new URLSearchParams({
                     tag: FEATURED_TAG,
                     limit: "8",
                 });
-                const response = await fetch(
+
+                const albumsResponse = await fetch(
                     `${backendUrl}/api/lastfm/featured-albums?${params.toString()}`
                 );
-                const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(data.error || "No se pudieron cargar los lanzamientos");
+                const albumsData = await albumsResponse.json();
+
+                if (albumsResponse.ok) {
+                    setFeaturedAlbums(albumsData.results || []);
                 }
 
-                setFeaturedAlbums(data.results || []);
+                // =====================
+                // Reseñas recientes
+                // =====================
+                const reviewsResponse = await fetch(
+                    `${backendUrl}/api/reviews/recent`
+                );
+
+                const reviewsData = await reviewsResponse.json();
+                console.log("RESEÑAS:", JSON.stringify(reviewsData, null, 2));
+                if (reviewsResponse.ok) {
+                    setRecentReviews(reviewsData.reviews || []);
+                }
+
             } catch (err) {
-                setFeaturedAlbums([]);
+                console.error(err);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        loadFeaturedAlbums();
+        loadHome();
     }, []);
 
     return (
@@ -170,29 +158,29 @@ export const Home = () => {
                 <div className="section-header">
                     <div>
                         <p className="section-eyebrow">Comunidad</p>
-                        <h2>Reseñas populares</h2>
+                        <h2>Reseñas recientes</h2>
                     </div>
 
                     <a href="/review">Ver todas</a>
                 </div>
 
                 <div className="review-grid">
-                    {popularReviews.map((review) => (
+                    {recentReviews.map((review) => (
                         <article className="review-card" key={`${review.user}-${review.album}`}>
                             <div className="review-top">
                                 <div>
                                     <strong>{review.user}</strong>
-                                    <span>{review.rating}</span>
+                                    <span>{"★".repeat(review.rating)}</span>
                                 </div>
 
-                                <small>Hace 2h</small>
+                                <small>AUDIA</small>
                             </div>
 
                             <p className="review-text">{review.text}</p>
 
                             <div className="review-bottom">
                                 <div className="review-album">
-                                    <img src={review.image} alt={`Portada de ${review.album}`} />
+                                    <img src={review.cover || FALLBACK_IMAGE} alt={review.album} />
 
                                     <div>
                                         <strong>{review.album}</strong>
@@ -200,10 +188,6 @@ export const Home = () => {
                                     </div>
                                 </div>
 
-                                <div className="review-actions">
-                                    <span>♡ {review.likes}</span>
-                                    <span>▢ {review.comments}</span>
-                                </div>
                             </div>
                         </article>
                     ))}

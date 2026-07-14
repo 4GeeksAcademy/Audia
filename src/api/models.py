@@ -41,6 +41,46 @@ class User(db.Model):
             "profile_image": self.profile_image,
         }
 
+class Favorite(db.Model):
+    __tablename__ = "favorite"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    album_id = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    album_name = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    artist = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    cover = db.Column(
+        db.String(500),
+        nullable=True
+    )
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "album_id": self.album_id,
+            "album_name": self.album_name,
+            "artist": self.artist,
+            "cover": self.cover
+        }
+
 class Review(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column(String(3000), nullable=False)

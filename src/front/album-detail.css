@@ -67,3 +67,33 @@
 .album-detail-card h1 {
   margin: 0 0 10px;
 }
+
+.album-detail-favorite-btn {
+    width: 100%;
+    padding: 12px 20px;
+    border: 2px solid #0f3d75;
+    border-radius: 14px;
+    background: transparent;
+    color: #0f3d75;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.album-detail-favorite-btn:hover {
+    background: #0f3d75;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 61, 117, 0.25);
+}
+
+.album-detail-favorite-btn.favorite-active {
+    background: linear-gradient(135deg, #0f3d75, #1d5fa8);
+    border-color: #0f3d75;
+    color: white;
+}
+
+.album-detail-favorite-btn.favorite-active:hover {
+    background: linear-gradient(135deg, #144d93, #2b74c7);
+}

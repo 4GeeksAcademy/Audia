@@ -448,3 +448,11 @@
     text-decoration: underline;
     color: #314b7c;
 }
+
+.album-card {
+    cursor: pointer;
+}
+
+.text-decoration-none {
+    color: inherit;
+}

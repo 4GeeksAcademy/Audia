@@ -12,6 +12,7 @@ export const AlbumDetail = () => {
     const [isLoadingReview, setIsLoadingReview] = useState(true);
     const [albumReviews, setAlbumReviews] = useState([]);
     const [isLoadingAlbumReviews, setIsLoadingAlbumReviews] = useState(true);
+    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -137,6 +138,87 @@ export const AlbumDetail = () => {
         loadAlbumReviews();
     }, [albumData?.id]);
 
+    useEffect(() => {
+        const loadFavorite = async () => {
+            if (!albumData) return;
+
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            const backendUrl =
+                (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+
+            const response = await fetch(
+                `${backendUrl}/api/favorites`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            const exists = data.favorites.some(
+                fav => fav.album_id === albumData.id
+            );
+
+            setIsFavorite(exists);
+        };
+
+        loadFavorite();
+
+    }, [albumData]);
+
+    const toggleFavorite = async () => {
+        const backendUrl =
+            (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+
+        const token = localStorage.getItem("token");
+
+        if (!token) return;
+
+        if (!isFavorite) {
+            await fetch(
+                `${backendUrl}/api/favorites`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        album_id: albumData.id,
+                        album_name: albumData.name,
+                        artist: albumData.artist,
+                        cover: albumData.cover
+                    })
+                }
+            );
+
+            setIsFavorite(true);
+
+        } else {
+            console.log("ID que intenta eliminar:", albumData.id);
+
+            console.log(
+                "URL:",
+                `${backendUrl}/api/favorites/${albumData.id}`
+            );
+
+            await fetch(
+                `${backendUrl}/api/favorites/${encodeURIComponent(albumData.id)}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            setIsFavorite(false);
+        }
+    };
     if (isLoading) {
         return <div className="album-detail-page"><p>Cargando álbum...</p></div>;
     }
@@ -160,8 +242,13 @@ export const AlbumDetail = () => {
                         className="img-fluid rounded-4 w-100 object-fit-cover album-detail-cover-image"
                     />
                     <div className="d-grid gap-2">
-                        <button type="button" className="hero-button w-100 border-0 album-detail-favorite-btn">
-                            ❤️ Guardar en favoritos
+                        <button
+                            type="button"
+                            className="album-detail-favorite-btn"
+                            onClick={toggleFavorite}>
+                            {isFavorite
+                                ? "❤️ Guardado"
+                                : "🤍 Guardar en favoritos"}
                         </button>
                         <Link
                             to={`/review?artist=${encodeURIComponent(albumData.artist)}&album=${encodeURIComponent(albumData.name)}`}
@@ -225,9 +312,9 @@ export const AlbumDetail = () => {
                     <div className="d-flex justify-content-between">
                         <p className="album-detail-label">Álbum</p>
                         {albumData.link ? (
-                        <Link
-                            to={albumData.link}
-                            className="hero-button !p-1 album-detail-ver-mas-btn border-0 text-decoration-none rounded-pill fw-bold"
+                            <Link
+                                to={albumData.link}
+                                className="hero-button !p-1 album-detail-ver-mas-btn border-0 text-decoration-none rounded-pill fw-bold"
                             >
                                 Ver más
                             </Link>
@@ -235,10 +322,10 @@ export const AlbumDetail = () => {
                     </div>
                     <h1>{albumData.name}</h1>
                     <p>{albumData.artist}</p>
-                    {albumData.tags?.length ? 
-                    <div>{albumData.tags?.map((tag) => (
-                        <span className="rounded-4 px-2 text-light small me-1 album-detail-card-tag" key={tag}>{tag}</span>
-                    ))}</div> : null}
+                    {albumData.tags?.length ?
+                        <div>{albumData.tags?.map((tag) => (
+                            <span className="rounded-4 px-2 text-light small me-1 album-detail-card-tag" key={tag}>{tag}</span>
+                        ))}</div> : null}
 
                     {albumData.summary ? (
                         <div dangerouslySetInnerHTML={{ __html: "<strong>Summary: </strong>" + albumData.summary }} />
@@ -246,7 +333,7 @@ export const AlbumDetail = () => {
                         <p>No hay detalles disponibles para este álbum.</p>
                     )}
 
-                    {albumData.tracks?.length ? ( 
+                    {albumData.tracks?.length ? (
                         <>
                             <p className="mb-0 mt-2"><strong>Tracks:</strong> </p>
                             <ul className="list-group list-group-flush">

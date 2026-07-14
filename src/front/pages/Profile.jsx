@@ -40,57 +40,8 @@ export const Profile = () => {
     const [confirmCurrentPassword, setConfirmCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [passwordMessage, setPasswordMessage] = useState("");
+    const [favoriteAlbums, setFavoriteAlbums] = useState([]);
 
-    const favoriteAlbums = [
-        {
-            id: 1,
-            title: "After Hours",
-            artist: "The Weeknd",
-            cover: "/albums/1.png"
-        },
-        {
-            id: 2,
-            title: "DAMN.",
-            artist: "Kendrick Lamar",
-            cover: "/albums/2.png"
-        },
-        {
-            id: 3,
-            title: "Currents",
-            artist: "Tame Impala",
-            cover: "/albums/3.jpg"
-        },
-        {
-            id: 4,
-            title: "Random Access Memories",
-            artist: "Daft Punk",
-            cover: "/albums/4.png"
-        },
-        {
-            id: 5,
-            title: "Abbey Road",
-            artist: "The Beatles",
-            cover: "/albums/5.jpg"
-        },
-        {
-            id: 6,
-            title: "Blonde",
-            artist: "Frank Ocean",
-            cover: "/albums/6.jpeg"
-        },
-        {
-            id: 7,
-            title: "Graduation",
-            artist: "Kanye West",
-            cover: "/albums/7.jpg"
-        },
-        {
-            id: 8,
-            title: "Discovery",
-            artist: "Daft Punk",
-            cover: "/albums/8.png"
-        }
-    ];
 
     const saveProfile = async () => {
         try {
@@ -217,15 +168,14 @@ export const Profile = () => {
     useEffect(() => {
         const loadProfile = async () => {
             const token = localStorage.getItem("token");
-
+            const backendUrl =
+                (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
             if (!token) {
                 navigate("/login");
                 return;
             }
 
             try {
-                const backendUrl =
-                    (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
                 const response = await fetch(`${backendUrl}/api/profile`, {
                     headers: {
@@ -287,6 +237,23 @@ export const Profile = () => {
                 setLoading(false);
                 setReviewsLoading(false);
             }
+            const favoritesResponse = await fetch(
+                `${backendUrl}/api/favorites`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const favoritesData =
+                await favoritesResponse.json();
+
+            console.log("Favoritos:", favoritesData);
+
+            setFavoriteAlbums(
+                favoritesData.favorites || []
+            );
         };
 
         loadProfile();
@@ -410,31 +377,39 @@ export const Profile = () => {
 
                         {favoriteAlbums.map((album) => (
 
-                            <div className="col-lg-3 col-md-6 col-sm-6 mb-4"
+                            <div
+                                className="col-lg-3 col-md-6 col-sm-6 mb-4"
                                 key={album.id}
                             >
 
-                                <div className="album-card">
+                                <Link
+                                    to={`/album/${encodeURIComponent(album.artist)}/${encodeURIComponent(album.album_name)}`}
+                                    className="text-decoration-none"
+                                >
 
-                                    <div className="album-image-container">
+                                    <div className="album-card">
 
-                                        <img
-                                            src={album.cover}
-                                            alt={album.title}
-                                            className="album-image"
-                                        />
+                                        <div className="album-image-container">
+
+                                            <img
+                                                src={album.cover}
+                                                alt={album.album_name}
+                                                className="album-image"
+                                            />
+
+                                        </div>
+
+                                        <div className="album-info">
+
+                                            <h5>{album.album_name}</h5>
+
+                                            <p>{album.artist}</p>
+
+                                        </div>
 
                                     </div>
 
-                                    <div className="album-info">
-
-                                        <h5>{album.title}</h5>
-
-                                        <p>{album.artist}</p>
-
-                                    </div>
-
-                                </div>
+                                </Link>
 
                             </div>
 

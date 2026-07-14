@@ -17,6 +17,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from werkzeug.utils import secure_filename
+from api.models import db, User, Favorite
 
 
 class APIException(Exception):
@@ -637,4 +638,134 @@ def change_password():
 
     return jsonify({
         "message": "Contraseña actualizada correctamente"
+    }), 200
+
+@api.route("/favorites", methods=["GET"])
+@jwt_required()
+def get_favorites():
+
+    user_id = int(get_jwt_identity())
+
+    favorites = Favorite.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    return jsonify({
+        "favorites": [
+            favorite.serialize()
+            for favorite in favorites
+        ]
+    }), 200
+
+@api.route("/favorites", methods=["POST"])
+@jwt_required()
+def add_favorite():
+
+    user_id = int(get_jwt_identity())
+
+    data = request.get_json()
+
+    existing = Favorite.query.filter_by(
+        user_id=user_id,
+        album_id=data["album_id"]
+    ).first()
+
+    if existing:
+        return jsonify({
+            "message": "Ya está guardado"
+        }), 200
+
+    favorite = Favorite(
+        user_id=user_id,
+        album_id=data["album_id"],
+        album_name=data["album_name"],
+        artist=data["artist"],
+        cover=data["cover"]
+    )
+
+    db.session.add(favorite)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Favorito guardado"
+    }), 201
+
+
+@api.route("/favorites/<path:album_id>", methods=["DELETE"])
+@jwt_required()
+def remove_favorite(album_id):
+
+    user_id = int(get_jwt_identity())
+
+    favorite = Favorite.query.filter_by(
+        user_id=user_id,
+        album_id=album_id
+    ).first()
+
+    if not favorite:
+        return jsonify({
+            "error": "Favorito no encontrado"
+        }), 404
+
+    db.session.delete(favorite)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Favorito eliminado"
+    }), 200
+
+@api.route("/reviews/recent", methods=["GET"])
+def recent_reviews():
+
+    reviews = (
+        Review.query
+        .order_by(Review.id.desc())
+        .limit(6)
+        .all()
+    )
+
+    reviews_data = []
+
+    for review in reviews:
+
+        album_id = review.album_id
+
+        artist = None
+        album = None
+
+        if "/" in album_id:
+            artist, album = album_id.split("/", 1)
+
+        try:
+            if artist and album:
+                payload = _lastfm_request(
+                    "album.getInfo",
+                    artist=artist,
+                    album=album,
+                )
+            else:
+                payload = _lastfm_request(
+                    "album.getInfo",
+                    mbid=album_id,
+                )
+
+            album_info = _normalize_lastfm_album(
+                payload.get("album", {})
+            )
+
+        except APIException:
+            album_info = {}
+
+        reviews_data.append({
+            "id": review.id,
+            "text": review.text,
+            "rating": review.rating,
+            "user": review.user.display_name or review.user.username,
+            "album": album_info.get("name") or album,
+            "artist": album_info.get("artist") or artist,
+            "cover": album_info.get("cover"),
+        })
+
+    return jsonify({
+        "reviews": reviews_data
     }), 200
