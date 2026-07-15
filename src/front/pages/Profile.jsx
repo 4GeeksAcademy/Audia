@@ -237,23 +237,28 @@ export const Profile = () => {
                 setLoading(false);
                 setReviewsLoading(false);
             }
-            const favoritesResponse = await fetch(
-                `${backendUrl}/api/favorites`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
+            try {
+                const favoritesResponse = await fetch(
+                    `${backendUrl}/api/favorites`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
                     }
+                );
+
+                if (favoritesResponse.ok) {
+                    const favoritesData =
+                        await favoritesResponse.json();
+
+                    setFavoriteAlbums(
+                        favoritesData.favorites || []
+                    );
                 }
-            );
-
-            const favoritesData =
-                await favoritesResponse.json();
-
-            console.log("Favoritos:", favoritesData);
-
-            setFavoriteAlbums(
-                favoritesData.favorites || []
-            );
+            } catch (favErr) {
+                console.error("No se pudieron cargar los favoritos", favErr);
+                setFavoriteAlbums([]);
+            }
         };
 
         loadProfile();
@@ -340,7 +345,7 @@ export const Profile = () => {
                                 </div>
 
                                 <div className="col">
-                                    <h3>0</h3>
+                                    <h3>{favoriteAlbums.length}</h3>
                                     <span>Favoritos</span>
                                 </div>
 

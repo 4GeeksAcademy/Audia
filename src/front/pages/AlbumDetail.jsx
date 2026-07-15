@@ -157,7 +157,10 @@ export const AlbumDetail = () => {
                 }
             );
 
+            if (!response.ok) return;
+
             const data = await response.json();
+            if (!data || !Array.isArray(data.favorites)) return;
 
             const exists = data.favorites.some(
                 fav => fav.album_id === albumData.id
@@ -199,15 +202,8 @@ export const AlbumDetail = () => {
             setIsFavorite(true);
 
         } else {
-            console.log("ID que intenta eliminar:", albumData.id);
-
-            console.log(
-                "URL:",
-                `${backendUrl}/api/favorites/${albumData.id}`
-            );
-
             await fetch(
-                `${backendUrl}/api/favorites/${encodeURIComponent(albumData.id)}`,
+                `${backendUrl}/api/favorites?album_id=${encodeURIComponent(albumData.id)}`,
                 {
                     method: "DELETE",
                     headers: {

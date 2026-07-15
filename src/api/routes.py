@@ -664,10 +664,22 @@ def add_favorite():
     user_id = int(get_jwt_identity())
 
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se enviaron datos"}), 400
+
+    album_id = data.get("album_id")
+    album_name = data.get("album_name")
+    artist = data.get("artist")
+    cover = data.get("cover")
+
+    if not album_id or not album_name or not artist:
+        return jsonify({
+            "error": "album_id, album_name y artist son obligatorios"
+        }), 400
 
     existing = Favorite.query.filter_by(
         user_id=user_id,
-        album_id=data["album_id"]
+        album_id=album_id
     ).first()
 
     if existing:
@@ -677,10 +689,10 @@ def add_favorite():
 
     favorite = Favorite(
         user_id=user_id,
-        album_id=data["album_id"],
-        album_name=data["album_name"],
-        artist=data["artist"],
-        cover=data["cover"]
+        album_id=album_id,
+        album_name=album_name,
+        artist=artist,
+        cover=cover
     )
 
     db.session.add(favorite)
@@ -691,11 +703,17 @@ def add_favorite():
     }), 201
 
 
-@api.route("/favorites/<path:album_id>", methods=["DELETE"])
+@api.route("/favorites", methods=["DELETE"])
 @jwt_required()
-def remove_favorite(album_id):
+def remove_favorite():
 
     user_id = int(get_jwt_identity())
+
+    album_id = request.args.get("album_id", "").strip()
+    if not album_id:
+        return jsonify({
+            "error": "El álbum es obligatorio"
+        }), 400
 
     favorite = Favorite.query.filter_by(
         user_id=user_id,
