@@ -627,17 +627,6 @@ export const Profile = () => {
                                 }
                             />
 
-                            <p className="forgot-password-text mt-4">
-                                ¿Olvidaste tu contraseña?
-                            </p>
-
-                            <button
-                                type="button"
-                                className="forgot-password-btn"
-                            >
-                                Enviar código al correo
-                            </button>
-
                         </div>
 
                         <div className="modal-footer">
