@@ -165,32 +165,40 @@ export const Home = () => {
                 </div>
 
                 <div className="review-grid">
-                    {recentReviews.map((review) => (
-                        <article className="review-card" key={`${review.user}-${review.album}`}>
-                            <div className="review-top">
-                                <div>
-                                    <strong>{review.user}</strong>
-                                    <span>{"★".repeat(review.rating)}</span>
-                                </div>
+                    {recentReviews.map((review) => {
+                        const reviewPath = `/review?artist=${encodeURIComponent(review.artist)}&album=${encodeURIComponent(review.album)}&user_id=${review.user_id}`;
 
-                                <small>AUDIA</small>
-                            </div>
-
-                            <p className="review-text">{review.text}</p>
-
-                            <div className="review-bottom">
-                                <div className="review-album">
-                                    <img src={review.cover || FALLBACK_IMAGE} alt={review.album} />
-
+                        return (
+                            <Link
+                                to={reviewPath}
+                                className="review-card"
+                                key={`${review.user}-${review.album}`}
+                            >
+                                <div className="review-top">
                                     <div>
-                                        <strong>{review.album}</strong>
-                                        <span>{review.artist}</span>
+                                        <strong>{review.user}</strong>
+                                        <span>{"★".repeat(review.rating)}</span>
                                     </div>
+
+                                    <small>AUDIA</small>
                                 </div>
 
-                            </div>
-                        </article>
-                    ))}
+                                <p className="review-text">{review.text}</p>
+
+                                <div className="review-bottom">
+                                    <div className="review-album">
+                                        <img src={review.cover || FALLBACK_IMAGE} alt={review.album} />
+
+                                        <div>
+                                            <strong>{review.album}</strong>
+                                            <span>{review.artist}</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </Link>
+                        );
+                    })}
                 </div>
             </section>
         </main>

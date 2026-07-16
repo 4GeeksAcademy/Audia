@@ -779,6 +779,8 @@ def recent_reviews():
             "text": review.text,
             "rating": review.rating,
             "user": review.user.display_name or review.user.username,
+            "user_id": review.user_id,
+            "album_id": review.album_id,
             "album": album_info.get("name") or album,
             "artist": album_info.get("artist") or artist,
             "cover": album_info.get("cover"),
