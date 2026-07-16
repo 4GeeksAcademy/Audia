@@ -69,101 +69,58 @@ export const SearchResults = () => {
     }, [location.search]);
 
     return (
-        <main className="search-results-page" style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-            <Link to="/" style={{ display: "inline-block", marginBottom: "1.5rem", color: "#00b0ff", textDecoration: "none", fontWeight: "bold" }}>
+        <main className="search-results-page">
+            <Link to="/" className="search-back-link">
                 ← Volver a Inicio
             </Link>
 
-            <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>Resultados de búsqueda</h1>
-            <p style={{ color: "#666", marginBottom: "2rem" }}>
-                {getQueryParam(location.search, "q") ? `Mostrando resultados para “${getQueryParam(location.search, "q")}”` : "Introduce una búsqueda"}
+            <h1>Resultados de búsqueda</h1>
+
+            <p className="search-results-copy">
+                {getQueryParam(location.search, "q")
+                    ? `Mostrando resultados para “${getQueryParam(location.search, "q")}”`
+                    : "Introduce una búsqueda"}
             </p>
 
             {isLoading ? (
-                <div style={{ textAlign: "center", padding: "2rem" }}>
-                    <p style={{ fontSize: "1.2rem", color: "#666" }}>Buscando álbumes...</p>
+                <div className="search-state">
+                    <p>Buscando álbumes...</p>
                 </div>
             ) : error ? (
-                <div style={{ padding: "1rem", backgroundColor: "#fff3cd", color: "#856404", borderRadius: "8px", marginBottom: "1.5rem", border: "1px solid #ffeeba" }}>
-                    <p style={{ margin: 0 }}>{error}</p>
+                <div className="search-error">
+                    <p>{error}</p>
                 </div>
             ) : (
-                <div className="search-results-grid" style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-                    gap: "1.5rem"
-                }}>
+                <div className="search-results-grid">
                     {results.map((result) => {
-                        if (!result.artist || !result.name) {
-                            return null;
-                        }
-                        // Forzamos la redirección al detalle del álbum usando su nombre de álbum y artista
+                        if (!result.artist || !result.name) return null;
+
                         const detailPath = `/album/${encodeURIComponent(result.artist)}/${encodeURIComponent(result.name)}`;
-                        const fallbackImage = "https://static.vecteezy.com/system/resources/thumbnails/052/706/218/small/vibrant-green-cucumber-with-fresh-texture-png.png";
+                        const fallbackImage =
+                            "https://static.vecteezy.com/system/resources/thumbnails/052/706/218/small/vibrant-green-cucumber-with-fresh-texture-png.png";
 
                         return (
                             <Link
                                 key={`${result.artist}-${result.name}`}
                                 to={detailPath}
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    textDecoration: "none",
-                                    color: "inherit",
-                                    transition: "transform 0.2s, box-shadow 0.2s",
-                                    backgroundColor: "#fdfdfd",
-                                    borderRadius: "10px",
-                                    overflow: "hidden",
-                                    border: "1px solid #e0e0e0",
-                                    boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = "scale(1.03)";
-                                    e.currentTarget.style.boxShadow = "0 5px 15px rgba(0,0,0,0.1)";
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = "scale(1)";
-                                    e.currentTarget.style.boxShadow = "0 2px 5px rgba(0,0,0,0.05)";
-                                }}
+                                className="search-result-card"
                             >
-                                {/* Contenedor de la Portada del Álbum */}
-                                <div style={{ width: "100%", aspectRatio: "1/1", overflow: "hidden", backgroundColor: "#eaeaea" }}>
+                                <div className="search-result-cover">
                                     <img
                                         src={result.cover || result.image || fallbackImage}
                                         alt={result.name}
-                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                        onError={(e) => { e.target.src = fallbackImage; }}
+                                        onError={(e) => {
+                                            e.target.src = fallbackImage;
+                                        }}
                                     />
                                 </div>
 
-                                {/* Cuerpo de la tarjeta con la información técnica */}
-                                <div style={{ padding: "0.8rem", display: "flex", flexDirection: "column", flexGrow: 1 }}>
-                                    <strong style={{
-                                        color: "black",
-                                        fontSize: "0.95rem",
-                                        lineHeight: "1.2",
-                                        marginBottom: "0.4rem",
-                                        display: "-webkit-box",
-                                        WebkitLineClamp: "2",
-                                        WebkitBoxOrient: "vertical",
-                                        overflow: "hidden"
-                                    }}>
+                                <div className="search-result-info">
+                                    <strong>{result.name}</strong>
 
-                                        
-                                        {result.name}
-                                    </strong>
+                                    {result.artist && <span>{result.artist}</span>}
 
-                                    {result.artist && (
-                                        <span style={{ fontSize: "0.85rem", color: "#444", marginTop: "auto" }}>
-                                            {result.artist}
-                                        </span>
-                                    )}
-
-                                    {result.year && (
-                                        <span style={{ fontSize: "0.8rem", color: "#888", marginTop: "2px" }}>
-                                            {result.year}
-                                        </span>
-                                    )}
+                                    {result.year && <small>{result.year}</small>}
                                 </div>
                             </Link>
                         );

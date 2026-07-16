@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const AlbumDetail = () => {
     const { artist, album } = useParams();
+    const navigate = useNavigate();
     const { store } = useGlobalReducer();
     const [albumData, setAlbumData] = useState(null);
     const [error, setError] = useState("");
@@ -61,7 +62,7 @@ export const AlbumDetail = () => {
         };
 
         loadAlbum();
-        
+
         return () => {
             cancelled = true;
         };
@@ -179,7 +180,10 @@ export const AlbumDetail = () => {
 
         const token = localStorage.getItem("token");
 
-        if (!token) return;
+        if (!token) {
+            navigate("/login");
+            return;
+        }
 
         if (!isFavorite) {
             await fetch(
@@ -246,12 +250,24 @@ export const AlbumDetail = () => {
                                 ? "❤️ Guardado"
                                 : "🤍 Guardar en favoritos"}
                         </button>
-                        <Link
-                            to={`/review?artist=${encodeURIComponent(albumData.artist)}&album=${encodeURIComponent(albumData.name)}`}
+                        <button
+                            type="button"
                             className="user-link w-100 border-0 text-white fw-bold album-detail-review-btn text-center"
+                            onClick={() => {
+                                const token = localStorage.getItem("token");
+
+                                if (!token) {
+                                    navigate("/login");
+                                    return;
+                                }
+
+                                navigate(
+                                    `/review?artist=${encodeURIComponent(albumData.artist)}&album=${encodeURIComponent(albumData.name)}`
+                                );
+                            }}
                         >
                             {isLoadingReview ? "Cargando reseña..." : userReview ? "Ver tu reseña" : "Haz una reseña"}
-                        </Link>
+                        </button>
                         {userReview ? (
                             <div className="d-flex justify-content-center gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (

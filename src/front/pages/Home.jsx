@@ -160,8 +160,6 @@ export const Home = () => {
                         <p className="section-eyebrow">Comunidad</p>
                         <h2>Reseñas recientes</h2>
                     </div>
-
-                    <a href="/review">Ver todas</a>
                 </div>
 
                 <div className="review-grid">
