@@ -15,7 +15,7 @@ export const Footer = () => {
         </nav>
 
         <p className="footer-copy">
-          © 2026 MusicBoxd. Todos los derechos reservados.
+          © 2026 Audia. Todos los derechos reservados.
         </p>
       </div>
     </footer>

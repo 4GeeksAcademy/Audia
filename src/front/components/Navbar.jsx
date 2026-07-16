@@ -54,7 +54,7 @@ export const Navbar = () => {
         className="logo"
         style={{ textDecoration: "none", color: "inherit" }}
       >
-        <h1>Audia</h1>
+        <img src="/albums/logo.png" alt="Audia" className="navbar-logo" />
       </Link>
 
       <div className="navbar-right">
